@@ -20,7 +20,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     super.initState();
     _emailController = TextEditingController(text: widget.user.email);
     _usernameController = TextEditingController(text: widget.user.username);
-    _passwordController = TextEditingController(text: widget.user.password);
+  //  _passwordController = TextEditingController(text: widget.user.password);
   }
 
   @override

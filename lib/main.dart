@@ -1,27 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:gamefan_app/pages/user/signInPage.dart';
+import 'package:provider/provider.dart';
+import 'pages/user/signInPage.dart'; // Ensure this is the correct path
 import 'entities/user.dart';
 import 'pages/user/signUpPage.dart';
 import 'pages/user/EditProfilePage.dart';
-import 'pages/user/ShowProfilePage.dart';
+import 'pages/user/ShowProfilePage.dart'; // Ensure this is the correct path
+import 'entities/userModel.dart'; // Import UserModel
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => UserModel(),
+      child: MyApp(),
+    ),
+  );
 }
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
 
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Workshops 5GamiX",
-      routes: {
-        "/": (BuildContext context) => SignInPage(),
-        "/SignUpPage": (BuildContext context) =>  SignUpPage(),
-      //  "/SignInPage": (BuildContext context) =>  SignInPage(),
-        "/EditProfilePage": (BuildContext context) => EditProfilePage(user: User(id: '',username: "User 1", email: "User1@example.com",  password: '123')),
-        "/ShowProfilePage": (BuildContext context) => ShowProfilePage(user: User(id: '',username: "User 1", email: "User1@example.com",  password: '123')),
-      },
+      title: 'Your App Title',
+      theme: ThemeData(
+        primarySwatch: Colors.deepPurple,
+      ),
+      home: SignInPage(), // The entry point of your application
+      // Define your routes if necessary
+      // routes: {
+      //   '/signUp': (context) => SignUpPage(),
+      //   '/editProfile': (context) => EditProfilePage(),
+      //   '/showProfile': (context) => ShowProfilePage(),
+      // },
     );
   }
 }

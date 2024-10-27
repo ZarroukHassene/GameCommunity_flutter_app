@@ -1,9 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SignUpPage extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  Future<void> _signUp() async {
+    final String email = _emailController.text;
+    final String username = _usernameController.text;
+    final String password = _passwordController.text;
+
+    // Use your local machine's IP address here instead of localhost
+    final url = Uri.parse('http://10.0.2.2:9090/user/'); // Use your actual local IP
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'email': email,
+          'username': username,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // Handle success response
+        final responseBody = jsonDecode(response.body);
+        print('User created: ${responseBody}');
+        // You can navigate to another page or show a success message
+      } else {
+        // Handle error response
+        print('Failed to create user: ${response.body}');
+      }
+    } catch (error) {
+      // Handle any exceptions
+      print('Error occurred: $error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +62,10 @@ class SignUpPage extends StatelessWidget {
             SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
-                // Handle sign-up logic here
+                _signUp(); // Call the sign-up method when the button is pressed
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple, // Update this to use backgroundColor
+                backgroundColor: Colors.deepPurple,
                 padding: EdgeInsets.symmetric(vertical: 15),
               ),
               child: Text(

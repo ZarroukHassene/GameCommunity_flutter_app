@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import '../../entities/user.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:gamefan_app/entities/user.dart';
+import 'package:gamefan_app/entities/userModel.dart'; // Make sure the import is correct
+import 'showProfilePage.dart';
 import 'signUpPage.dart';
-import 'showProfilePage.dart'; // Import the Show Profile Page
+import 'package:provider/provider.dart';
 
 class SignInPage extends StatelessWidget {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
@@ -12,7 +16,6 @@ class SignInPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Sign In', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        backgroundColor: Colors.deepPurple,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -22,12 +25,12 @@ class SignInPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Image.asset(
-                  'assets/images/logo.png',  // Use your app's logo
+                  'assets/images/logo.png',
                   height: 150,
                   width: 150,
                 ),
                 SizedBox(height: 40),
-                _buildTextField(_emailController, 'Email', false),
+                _buildTextField(_usernameController, 'Username', false),
                 SizedBox(height: 20),
                 _buildTextField(_passwordController, 'Password', true),
                 SizedBox(height: 40),
@@ -74,27 +77,56 @@ class SignInPage extends StatelessWidget {
 
   Widget _buildSignInButton(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {
-        String email = _emailController.text;
+      onPressed: () async {
+        String username = _usernameController.text;
         String password = _passwordController.text;
 
-        // Navigate to the Show Profile page after sign-in (dummy user for now)
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ShowProfilePage(
-              user: User(
-                id: '', // Empty ID as placeholder
-                username: "User 1",
-                email: "User1@example.com",
-                password: '123',
-              ),
-            ),
-          ),
-        );
+        final url = Uri.parse('http://10.0.2.2:9090/user/login');
+
+        try {
+          final response = await http.post(
+            url,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'username': username,
+              'password': password,
+            }),
+          );
+
+          if (response.statusCode == 200) {
+            final responseBody = jsonDecode(response.body);
+            print('Response body parsed: $responseBody');
+
+            User newUser = User(
+              id: responseBody['_id'],
+              username: responseBody['username'],
+              email: responseBody['email'],
+              // password: password, // Not safe to store passwords
+            );
+            print('Response 123: $newUser');
+
+            // Access UserModel using Consumer or directly with context
+            final userModel = Provider.of<UserModel>(context, listen: false);
+            userModel.login(newUser);
+
+            final currentUser = userModel.currentUser;
+            if (currentUser != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ShowProfilePage(user: currentUser)),
+              );
+            } else {
+              print('User is not logged in.');
+            }
+          } else {
+            print('Failed to log in: ${response.body}');
+          }
+        } catch (error) {
+          print('Error occurred: $error');
+        }
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.deepPurple, // Use backgroundColor instead of primary
+        backgroundColor: Colors.deepPurple,
         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -108,11 +140,9 @@ class SignInPage extends StatelessWidget {
     );
   }
 
-
   Widget _buildSignUpPrompt(BuildContext context) {
     return TextButton(
       onPressed: () {
-        // Navigate to Sign Up Page if the user doesn't have an account
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => SignUpPage()),
