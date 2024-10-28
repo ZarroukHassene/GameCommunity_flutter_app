@@ -51,7 +51,7 @@ class TopicElement extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${topic.posts.length} replies',
+                  '${topic.postIds.length} replies',
                   style: TextStyle(
                     fontSize: 14.0,
                     color: Colors.grey[600],

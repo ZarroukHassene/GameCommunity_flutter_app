@@ -19,4 +19,11 @@ class FUser {
   String toString() {
     return 'FUser{id: $id, username: $username}';
   }
+
+  factory FUser.fromJson(Map<String, dynamic> json) {
+    return FUser(
+      id: json['_id'] as String? ?? '', // Default to empty string if null
+      username: json['username'] as String? ?? 'Anonymous',
+    );
+  }
 }

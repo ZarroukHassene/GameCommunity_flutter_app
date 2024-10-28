@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
   flutter_quill: 10.8.4  # Check for the latest version on pub.dev
   device_info_plus: ^11.1.0
+  http: ^0.13.4
+  provider: ^6.0.0
 
 
   # The following adds the Cupertino Icons font to your application.

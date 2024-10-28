@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
-import '../entities/Topic.dart';
-import '../entities/Post.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'dart:convert';
+import '../../entities/Topic.dart';
+import '../../entities/Post.dart';
+import '../entities/ForumUser.dart';
+import '../main.dart';
 import 'elements/post_element.dart';
 
 class TopicDetailsView extends StatefulWidget {
@@ -17,8 +22,47 @@ class TopicDetailsView extends StatefulWidget {
 }
 
 class _TopicDetailsViewState extends State<TopicDetailsView> {
-  // Controller for the Quill Editor
   final quill.QuillController _controller = quill.QuillController.basic();
+  List<Post> posts = []; // List to store posts
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPosts(); // Fetch posts when the widget is initialized
+  }
+
+  // Fetch posts for the topic
+  Future<void> _fetchPosts() async {
+    try {
+      final response = await http.get(Uri.parse('http://10.0.2.2:9090/posts/${widget.topic.id}'));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> postList = json.decode(response.body);
+        setState(() {
+          posts = postList.map((json) => Post.fromJson(json)).toList();
+        });
+      } else {
+        throw Exception('Failed to load posts');
+      }
+    } catch (e) {
+      print('Error fetching posts: $e');
+    }
+  }
+
+  // Delete a post
+  Future<void> _deletePost(String postId) async {
+    final response = await http.delete(
+      Uri.parse('http://10.0.2.2:9090/posts/$postId'),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        posts.removeWhere((post) => post.id == postId);
+      });
+    } else {
+      print('Failed to delete post: ${response.body}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +72,6 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
       ),
       body: Column(
         children: [
-          // Topic Header
           Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
@@ -68,16 +111,15 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
               ],
             ),
           ),
-          // List of Posts
           Expanded(
             child: ListView.builder(
-              itemCount: widget.topic.posts.length,
+              itemCount: posts.length,
               itemBuilder: (context, index) {
-                final post = widget.topic.posts[index];
+                final post = posts[index];
                 return PostElement(
                   post: post,
                   onTap: () {
-                    // Handle post tapping (future implementation)
+                    _deletePost(post.id); // Trigger delete post when tapped
                   },
                 );
               },
@@ -85,7 +127,6 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
           ),
         ],
       ),
-      // Floating Action Button to add a new post
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showCreatePostPopup(context);
@@ -97,12 +138,11 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
     );
   }
 
-  // Helper function to format the date nicely
   String formatDate(DateTime date) {
     return '${date.day}-${date.month}-${date.year}';
   }
 
-  // Function to show the popup for creating a new post
+  // Show the popup for creating a new post
   void _showCreatePostPopup(BuildContext context) {
     showDialog(
       context: context,
@@ -126,9 +166,10 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: quill.QuillEditor.basic(
+                child: quill.QuillEditor(
                   controller: _controller,
-
+                  scrollController: ScrollController(),
+                  focusNode: FocusNode(),
                 ),
               ),
               quill.QuillToolbar.simple(
@@ -138,8 +179,9 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    // Handle post submission (you can save the post here)
-                    Navigator.of(context).pop(); // Close the dialog
+                    final content = _controller.document.toPlainText().trim();
+                    _createNewPost(content);
+                    Navigator.of(context).pop();
                   },
                   child: Text('Post'),
                 ),
@@ -149,5 +191,40 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
         );
       },
     );
+  }
+
+  Future<void> _createNewPost(String postContent) async {
+    try {
+      // Access the current user from UserProvider
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      //final currentUser = userProvider.currentUser;
+      FUser currentUser = FUser(id: '671f66bb914306b644bb0cf3', username: 'user2');
+
+      // Ensure the current user is not null
+      if (currentUser == null) {
+        print('Error: No user logged in.');
+        return;
+      }
+
+      // Send a POST request to create a new post
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:9090/posts/${widget.topic.id}'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'content': postContent,
+          'authorId': currentUser.id, // Pass the current user's ID as the author
+        }),
+      );
+
+      // Check if the response is successful
+      if (response.statusCode == 201) {
+        // Refresh the posts list to display the new post
+        _fetchPosts();
+      } else {
+        print('Failed to create post: ${response.body}');
+      }
+    } catch (e) {
+      print('Error creating post: $e');
+    }
   }
 }

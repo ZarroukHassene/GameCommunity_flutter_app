@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:gamefan_app/forum/posts_list.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../entities/Topic.dart';
-import '../../entities/Post.dart';
 import '../entities/ForumUser.dart';
 import '../entities/TopicCategory.dart';
-import 'elements/topic_element.dart'; // Assuming your TopicElement is here
+import '../main.dart';
+import 'elements/topic_element.dart';
+import 'package:provider/provider.dart';
 
 class TopicsListView extends StatefulWidget {
-  final List<Topic> topics;
   final TopicCategory category;
   final bool isAdmin;
 
+
   const TopicsListView({
     Key? key,
-    required this.topics,
     required this.category,
     required this.isAdmin,
   }) : super(key: key);
@@ -23,19 +26,39 @@ class TopicsListView extends StatefulWidget {
 }
 
 class _TopicsListViewState extends State<TopicsListView> {
-  late List<Topic> _topics;
-
+  List<Topic> _topics = [];
   // Quill editor controller for rich text post content
   final quill.QuillController _quillController = quill.QuillController.basic();
 
   @override
   void initState() {
     super.initState();
-    _topics = widget.topics;
+    _fetchTopics();
+  }
+
+  // Fetch topics for the category
+  Future<void> _fetchTopics() async {
+    try {
+      final response = await http.get(Uri.parse('http://10.0.2.2:9090/topics/${widget.category.id}'));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> topicList = json.decode(response.body);
+        setState(() {
+          print(response.body);
+          print(topicList);
+          _topics = topicList.map((json) => Topic.fromJson(json)).toList();
+        });
+      } else {
+        throw Exception('Failed to load topics');
+      }
+    } catch (e) {
+      print('Error fetching topics: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Topics in ${widget.category.name}'),
@@ -48,9 +71,12 @@ class _TopicsListViewState extends State<TopicsListView> {
             topic: topic,
             isAdmin: widget.isAdmin,
             onTap: () {
-              Navigator.pushNamed(
+              Navigator.push( // Navigate to the topic details view
                 context,
-                "/forum/category/topic",
+                MaterialPageRoute(
+                  builder: (context) => TopicDetailsView(topic: topic),
+                ),
+
               );
             },
           );
@@ -103,9 +129,10 @@ class _TopicsListViewState extends State<TopicsListView> {
                 ),
                 const SizedBox(height: 16.0),
                 // Flutter Quill Editor for rich text post content
-                quill.QuillEditor.basic(
+                quill.QuillEditor(
                   controller: _quillController,
-
+                  scrollController: ScrollController(),
+                  focusNode: FocusNode(),
                 ),
                 // Quill toolbar for rich text formatting
                 quill.QuillToolbar.simple(controller: _quillController),
@@ -121,7 +148,6 @@ class _TopicsListViewState extends State<TopicsListView> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        // Extract the content from Quill editor and create the new topic
                         final postContent = _quillController.document.toPlainText().trim();
                         _createNewTopic(titleController.text, postContent);
                         Navigator.of(context).pop(); // Close the popup
@@ -138,34 +164,31 @@ class _TopicsListViewState extends State<TopicsListView> {
     );
   }
 
-  // Create a new topic based on the title and rich text post content
-  void _createNewTopic(String title, String postContent) {
-    if (title.isEmpty || postContent.isEmpty) {
-      // Show an error or do nothing if fields are empty
-      return;
+  // API call to create a new topic
+  Future<void> _createNewTopic(String title, String postContent) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    //final currentUser = userProvider.currentUser;
+    FUser currentUser = FUser(id: '671ec40066de43881f2b6c53', username: 'hassen');
+    if (title.isEmpty || postContent.isEmpty) return;
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:9090/topics/${widget.category.id}'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'title': title,
+          'authorId': currentUser?.id ?? '',
+          'initialPost': postContent,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        _fetchTopics(); // Refresh the topics list
+      } else {
+        print('Failed to create topic: ${response.body}');
+      }
+    } catch (e) {
+      print('Error creating topic: $e');
     }
-
-    // Example admin user (replace with actual logged-in user if necessary)
-    final FUser author = FUser(id: 'admin', username: 'Admin');
-
-    // Create the first post with rich text content
-    final Post newPost = Post(
-      id: 'p${_topics.length + 1}', // Unique post ID
-      content: postContent,
-      author: author,
-    );
-
-    // Create the new topic
-    final Topic newTopic = Topic(
-      id: 't${_topics.length + 1}', // Unique topic ID
-      title: title,
-      author: author,
-      posts: [newPost],
-    );
-
-    // Add the new topic to the list and update the UI
-    setState(() {
-      _topics.add(newTopic);
-    });
   }
 }

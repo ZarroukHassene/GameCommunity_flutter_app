@@ -5,14 +5,15 @@ class Topic {
   final String id;
   final String title;
   final FUser author;
-  final DateTime createdAt = DateTime.now();
-  final List<Post> posts;
+  final DateTime createdAt;
+  final List<String> postIds = [];
 
   Topic({
     required this.id,
     required this.title,
     required this.author,
-    this.posts = const [],
+    required this.createdAt,
+    required List<String> postIds,
   });
 
   Map<String, dynamic> toJson() {
@@ -20,15 +21,30 @@ class Topic {
       'id': id,
       'title': title,
       'author': author.toJson(),
-      'posts': posts.map((e) => e.toJson()).toList(),
+      'postIds': postIds,
     };
   }
 
   @override
   String toString() {
-    return 'Topic{id: $id, title: $title, author: $author, posts: $posts}';
+    return 'Topic{id: $id, title: $title, author: $author, posts: $postIds}';
   }
+
+  factory Topic.fromJson(Map<String, dynamic> json) {
+    return Topic(
+      id: json['_id'] as String? ?? '', // Default to empty string if null
+      title: json['title'] as String? ?? 'Untitled Topic',
+      author: json['author'] != null
+          ? FUser.fromJson(json['author'] as Map<String, dynamic>)
+          : FUser(id: '', username: 'Unknown'), // Fallback for null author
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      postIds: (json['posts'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+    );
+  }
+
+
 }
+
 //lib/entities:
 //ForumUser.dart => FUser
 //Posts.dart => Post

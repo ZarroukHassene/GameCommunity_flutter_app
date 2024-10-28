@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../entities/ForumUser.dart';
 import '../entities/Topic.dart';
 import '../entities/TopicCategory.dart';
 import 'elements/category_element.dart';
+
 import 'topics_list.dart';
 
 class CategoriesListView extends StatefulWidget {
-  final List<TopicCategory> categories;
   final bool isAdmin;
 
   CategoriesListView({
     Key? key,
-    required this.categories,
     this.isAdmin = false,
   }) : super(key: key);
 
@@ -20,20 +21,39 @@ class CategoriesListView extends StatefulWidget {
 }
 
 class _CategoriesListViewState extends State<CategoriesListView> {
-  late List<TopicCategory> filteredCategories;
+  List<TopicCategory> categories = [];
+  List<TopicCategory> filteredCategories = [];
   TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    filteredCategories = widget.categories;
+    _fetchCategories(); // Fetch categories on init
+  }
+
+  // Fetch categories from the API
+  Future<void> _fetchCategories() async {
+    try {
+      final response = await http.get(Uri.parse('http://10.0.2.2:9090/categories'));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> categoryList = json.decode(response.body);
+        setState(() {
+          categories = categoryList.map((json) => TopicCategory.fromJson(json)).toList();
+          filteredCategories = categories;
+        });
+      } else {
+        throw Exception('Failed to load categories');
+      }
+    } catch (e) {
+      print('Error fetching categories: $e');
+    }
   }
 
   void filterCategories(String query) {
     setState(() {
-      filteredCategories = widget.categories
-          .where((category) =>
-          category.name.toLowerCase().contains(query.toLowerCase()))
+      filteredCategories = categories
+          .where((category) => category.name.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -83,21 +103,13 @@ class _CategoriesListViewState extends State<CategoriesListView> {
                         builder: (context) => TopicsListView(
                           category: category,
                           isAdmin: widget.isAdmin,
-                          topics: category.topics,
+
                         ),
                       ),
                     );
                   },
-                  onEdit: widget.isAdmin
-                      ? () {
-                    _showEditCategoryPopup(context, category);
-                  }
-                      : null,
-                  onDelete: widget.isAdmin
-                      ? () {
-                    _showDeleteConfirmationPopup(context, category);
-                  }
-                      : null,
+                  onEdit: widget.isAdmin ? () => _showEditCategoryPopup(context, category) : null,
+                  onDelete: widget.isAdmin ? () => _showDeleteConfirmationPopup(context, category) : null,
                 );
               },
             ),
@@ -120,6 +132,21 @@ class _CategoriesListViewState extends State<CategoriesListView> {
     );
   }
 
+  // API call to create a new category
+  Future<void> _createCategory(String name) async {
+    final response = await http.post(
+      Uri.parse('http://10.0.2.2:9090/categories'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'name': name}),
+    );
+
+    if (response.statusCode == 201) {
+      _fetchCategories(); // Refresh categories
+    } else {
+      print('Failed to create category: ${response.body}');
+    }
+  }
+
   void _showCreateCategoryPopup(BuildContext context) {
     TextEditingController categoryController = TextEditingController();
 
@@ -129,19 +156,17 @@ class _CategoriesListViewState extends State<CategoriesListView> {
         return AlertDialog(
           title: Text('Create New Category'),
           content: TextField(
-              controller: categoryController,
-              decoration: InputDecoration(hintText: 'Enter category name')
+            controller: categoryController,
+            decoration: InputDecoration(hintText: 'Enter category name'),
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                // Handle creating the new category (no backend yet)
+                _createCategory(categoryController.text);
                 Navigator.of(context).pop();
               },
               child: Text('Create'),
@@ -150,6 +175,21 @@ class _CategoriesListViewState extends State<CategoriesListView> {
         );
       },
     );
+  }
+
+  // API call to edit a category
+  Future<void> _editCategory(String id, String name) async {
+    final response = await http.put(
+      Uri.parse('http://10.0.2.2:9090/categories/$id'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'name': name}),
+    );
+
+    if (response.statusCode == 200) {
+      _fetchCategories(); // Refresh categories
+    } else {
+      print('Failed to edit category: ${response.body}');
+    }
   }
 
   void _showEditCategoryPopup(BuildContext context, TopicCategory category) {
@@ -166,14 +206,12 @@ class _CategoriesListViewState extends State<CategoriesListView> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                // Handle editing the category (no backend yet)
+                _editCategory(category.id, categoryController.text);
                 Navigator.of(context).pop();
               },
               child: Text('Confirm'),
@@ -182,6 +220,17 @@ class _CategoriesListViewState extends State<CategoriesListView> {
         );
       },
     );
+  }
+
+  // API call to delete a category
+  Future<void> _deleteCategory(String id) async {
+    final response = await http.delete(Uri.parse('http://10.0.2.2:9090/categories/$id'));
+
+    if (response.statusCode == 200) {
+      _fetchCategories(); // Refresh categories
+    } else {
+      print('Failed to delete category: ${response.body}');
+    }
   }
 
   void _showDeleteConfirmationPopup(BuildContext context, TopicCategory category) {
@@ -193,14 +242,12 @@ class _CategoriesListViewState extends State<CategoriesListView> {
           content: Text('Are you sure you want to delete the category "${category.name}"?'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                // Handle category deletion (no backend yet)
+                _deleteCategory(category.id);
                 Navigator.of(context).pop();
               },
               child: Text('Yes'),
