@@ -1,3 +1,19 @@
+<<<<<<< HEAD
+=======
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Add the Google Services classpath for Firebase
+        classpath 'com.android.tools.build:gradle:8.7.1'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.22'
+        classpath 'com.google.gms:google-services:4.4.2'  // Firebase services
+    }
+}
+
+>>>>>>> 33e99a5 (Chat and feedback)
 allprojects {
     repositories {
         google()

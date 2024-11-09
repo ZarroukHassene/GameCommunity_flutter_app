@@ -8,7 +8,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+<<<<<<< HEAD
 import 'package:gamefan_app/main.dart';
+=======
+import 'package:chat_feedback_app/main.dart';
+>>>>>>> 33e99a5 (Chat and feedback)
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 
 void main() {
   runApp(const MyApp());
@@ -32,10 +33,30 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
+=======
+import 'screens/chat_screen.dart';
+import 'screens/feedback_screen.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Chat & Feedback App',
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        primaryColor: Colors.yellow,
+      ),
+      home: HomeScreen(),
+>>>>>>> 33e99a5 (Chat and feedback)
     );
   }
 }
 
+<<<<<<< HEAD
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -111,15 +132,46 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
+=======
+class HomeScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Chat & Feedback App')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen()));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.yellow,  // Change 'primary' to 'backgroundColor'
+              ),
+              child: Text('Chat'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackScreen()));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.yellow,  // Change 'primary' to 'backgroundColor'
+              ),
+              child: Text('Send Feedback'),
+>>>>>>> 33e99a5 (Chat and feedback)
             ),
           ],
         ),
       ),
+<<<<<<< HEAD
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+=======
+>>>>>>> 33e99a5 (Chat and feedback)
     );
   }
 }

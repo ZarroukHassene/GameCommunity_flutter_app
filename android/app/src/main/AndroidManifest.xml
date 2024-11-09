@@ -1,6 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
+<<<<<<< HEAD
         android:label="gamefan_app"
+=======
+        android:label="esport"
+>>>>>>> 33e99a5 (Chat and feedback)
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

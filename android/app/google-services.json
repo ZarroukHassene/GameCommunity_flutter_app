@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "711721150652",
+    "project_id": "esport-chat",
+    "storage_bucket": "esport-chat.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:711721150652:android:570d0ef43ce79c1e7488b9",
+        "android_client_info": {
+          "package_name": "com.example.esport"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUTRM-2EC5tZ_mF3iGNtRYp5Gz3zW7u2w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

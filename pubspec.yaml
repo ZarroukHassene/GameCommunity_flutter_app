@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 name: gamefan_app
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
@@ -35,11 +36,34 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+=======
+name: chat_feedback_app
+description: A Flutter app for chatting and sending feedback.
+
+# SDK version constraint
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+# Dependencies for the app
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^0.13.6  # Downgraded to a compatible version
+  provider: ^6.0.0  # For state management
+  socket_io_client: ^2.0.0  # For socket.io functionality (supports null safety)
+
+  # UI and styling packages
+  flutter_chat_ui: ^1.5.0  # For a structured chat UI, adjust as needed for newer versions
+  flutter_form_builder: ^7.0.0  # For creating forms (useful for feedback form)
+  google_fonts: ^3.0.1  # For custom fonts, if you want to use Google Fonts
+  font_awesome_flutter: ^10.4.0  # For icons if needed
+>>>>>>> 33e99a5 (Chat and feedback)
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
+<<<<<<< HEAD
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -88,3 +112,16 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+=======
+# Assets (optional)
+assets:
+  - assets/icons/  # Add your own icons if needed
+  - assets/images/  # Add your images here
+
+flutter:
+  uses-material-design: true
+
+# Dependency overrides if necessary
+dependency_overrides:
+# Override specific versions if required for compatibility
+>>>>>>> 33e99a5 (Chat and feedback)

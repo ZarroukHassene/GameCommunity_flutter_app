@@ -1,12 +1,19 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
+<<<<<<< HEAD
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+=======
+>>>>>>> 33e99a5 (Chat and feedback)
     id "dev.flutter.flutter-gradle-plugin"
 }
 
 android {
+<<<<<<< HEAD
     namespace = "tn.esprit.gamefan_app"
+=======
+    namespace = "com.example.esport"  // Your app's package name
+>>>>>>> 33e99a5 (Chat and feedback)
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,11 +27,16 @@ android {
     }
 
     defaultConfig {
+<<<<<<< HEAD
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "tn.esprit.gamefan_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
+=======
+        applicationId = "com.example.esport"  // Your application ID
+        minSdkVersion 23
+>>>>>>> 33e99a5 (Chat and feedback)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -32,8 +44,12 @@ android {
 
     buildTypes {
         release {
+<<<<<<< HEAD
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
+=======
+            // Use the debug signing configuration for now to run in release mode.
+>>>>>>> 33e99a5 (Chat and feedback)
             signingConfig = signingConfigs.debug
         }
     }
@@ -42,3 +58,16 @@ android {
 flutter {
     source = "../.."
 }
+<<<<<<< HEAD
+=======
+
+// Add Firebase dependencies here
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:33.4.0')  // Firebase BoM
+    implementation 'com.google.firebase:firebase-auth'  // Firebase Authentication
+    implementation 'com.google.firebase:firebase-firestore'  // Cloud Firestore
+}
+
+// Apply the Google Services plugin at the bottom
+apply plugin: 'com.google.gms.google-services'
+>>>>>>> 33e99a5 (Chat and feedback)

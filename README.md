@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # gamefan_app
+=======
+# esport
+>>>>>>> 33e99a5 (Chat and feedback)
 
 A new Flutter project.
 
