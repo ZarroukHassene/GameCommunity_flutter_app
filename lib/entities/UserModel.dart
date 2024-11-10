@@ -10,7 +10,10 @@ class UserModel extends ChangeNotifier {
     _currentUser = user;
     notifyListeners(); // Notify listeners to update UI
   }
-
+  void updateUser(User user) {
+    _currentUser = user;
+    notifyListeners(); // Notify listeners to update the UI
+  }
   void logout() {
     _currentUser = null;
     notifyListeners(); // Notify listeners to update UI

@@ -3,10 +3,11 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:gamefan_app/entities/user.dart';
 import 'package:gamefan_app/entities/userModel.dart'; // Make sure the import is correct
+import 'package:provider/provider.dart';
 import 'showProfilePage.dart';
 import 'signUpPage.dart';
 import 'ProfilePage.dart';
-import 'package:provider/provider.dart';
+
 
 class SignInPage extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
@@ -102,19 +103,18 @@ class SignInPage extends StatelessWidget {
               id: responseBody['_id'],
               username: responseBody['username'],
               email: responseBody['email'],
-              // password: password, // Not safe to store passwords
             );
             print('Response 123: $newUser');
 
-            // Access UserModel using Consumer or directly with context
-            final userModel = Provider.of<UserModel>(context, listen: false);
-            userModel.login(newUser);
+            // Use context.read to access the UserModel provider
+            final userModel = context.read<UserModel>();
+            userModel.login(newUser);  // Call the login function
 
-            final currentUser = userModel.currentUser;
-            if (currentUser != null) {
+            // Navigate to the ProfilePage if the login was successful
+            if (userModel.currentUser != null) {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ProfilePage(user: currentUser)),
+                MaterialPageRoute(builder: (context) => ProfilePage(user: userModel.currentUser!)),
               );
             } else {
               print('User is not logged in.');

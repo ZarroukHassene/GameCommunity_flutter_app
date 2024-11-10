@@ -7,7 +7,7 @@ class SignUpPage extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Future<void> _signUp() async {
+  Future<void> _signUp(BuildContext context) async {
     final String email = _emailController.text;
     final String username = _usernameController.text;
     final String password = _passwordController.text;
@@ -32,7 +32,9 @@ class SignUpPage extends StatelessWidget {
         // Handle success response
         final responseBody = jsonDecode(response.body);
         print('User created: ${responseBody}');
-        // You can navigate to another page or show a success message
+
+        // Navigate back to the Sign In page
+        Navigator.pop(context);
       } else {
         // Handle error response
         print('Failed to create user: ${response.body}');
@@ -62,7 +64,7 @@ class SignUpPage extends StatelessWidget {
             SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
-                _signUp(); // Call the sign-up method when the button is pressed
+                _signUp(context); // Pass the context to navigate back
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple,
