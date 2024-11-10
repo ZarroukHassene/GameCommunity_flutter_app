@@ -1,15 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../entities/Post.dart';
 
 class PostElement extends StatelessWidget {
   final Post post;
+  final String currentUserId;
   final VoidCallback? onTap;
 
   const PostElement({
     Key? key,
     required this.post,
+    required this.currentUserId,
     this.onTap,
   }) : super(key: key);
+
+  bool get isLiked => post.userLikes.contains(currentUserId);
+
+  Future<void> _toggleLike() async {
+    final url = Uri.parse('http://10.0.2.2:9090/posts/likePost');
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'userId': currentUserId,
+        'postId': post.id,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // Toggle the like status locally or refresh the state as needed
+      print(isLiked ? 'Post unliked' : 'Post liked');
+    } else {
+      // Handle error
+      print('Error toggling like status: ${response.body}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,21 +67,33 @@ class PostElement extends StatelessWidget {
             ),
             const SizedBox(height: 8.0),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'By: ${post.author.username}',
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    color: Colors.grey[700],
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      'By: ${post.author.username}',
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    const SizedBox(width: 16.0),
+                    Text(
+                      'Posted on: ${formatDate(post.createdAt)}',
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 16.0),
-                Text(
-                  'Posted on: ${formatDate(post.createdAt)}',
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    color: Colors.grey[700],
+                IconButton(
+                  icon: Icon(
+                    Icons.favorite,
+                    color: isLiked ? Colors.red : Colors.grey,
                   ),
+                  onPressed: _toggleLike,
                 ),
               ],
             ),
@@ -65,8 +103,8 @@ class PostElement extends StatelessWidget {
     );
   }
 
-  // Helper function to format date for posts
   String formatDate(DateTime date) {
     return '${date.day}-${date.month}-${date.year}';
   }
 }
+

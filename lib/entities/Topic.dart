@@ -1,9 +1,11 @@
+import 'dart:ffi';
 import 'ForumUser.dart';
-import 'Post.dart';
 
 class Topic {
   final String id;
   final String title;
+   bool isClosed;
+   bool isArchived;
   final FUser author;
   final DateTime createdAt;
   final List<String> postIds = [];
@@ -11,6 +13,8 @@ class Topic {
   Topic({
     required this.id,
     required this.title,
+    required this.isClosed,
+    required this.isArchived,
     required this.author,
     required this.createdAt,
     required List<String> postIds,
@@ -20,6 +24,8 @@ class Topic {
     return {
       'id': id,
       'title': title,
+      'isClosed': isClosed,
+      'isArchived': isArchived,
       'author': author.toJson(),
       'postIds': postIds,
     };
@@ -39,6 +45,8 @@ class Topic {
           : FUser(id: '', username: 'Unknown'), // Fallback for null author
       createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
       postIds: (json['posts'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+      isClosed: (json['isClosed'] as bool),
+      isArchived: (json['isArchived'] as bool),
     );
   }
 

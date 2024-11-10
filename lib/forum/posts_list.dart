@@ -50,7 +50,7 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
   }
 
   // Delete a post
-  Future<void> _deletePost(String postId) async {
+  Future<void> _deletePost1(String postId) async {
     final response = await http.delete(
       Uri.parse('http://10.0.2.2:9090/posts/$postId'),
     );
@@ -63,7 +63,6 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
       print('Failed to delete post: ${response.body}');
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,8 +117,9 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
                 final post = posts[index];
                 return PostElement(
                   post: post,
+                  currentUserId: "671f66bb914306b644bb0cf3",
                   onTap: () {
-                    _deletePost(post.id); // Trigger delete post when tapped
+                    //_deletePost(post.id); // Trigger delete post when tapped
                   },
                 );
               },
@@ -127,23 +127,27 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: (!widget.topic.isClosed && !widget.topic.isArchived)
+          ? FloatingActionButton(
         onPressed: () {
           _showCreatePostPopup(context);
         },
         child: Icon(Icons.add),
         tooltip: 'Add New Post',
         heroTag: 'addPostFAB',
-      ),
+      )
+          : null, // FloatingActionButton is null if topic is closed or archived
     );
   }
+
 
   String formatDate(DateTime date) {
     return '${date.day}-${date.month}-${date.year}';
   }
-
-  // Show the popup for creating a new post
+// Show the popup for creating a new post
   void _showCreatePostPopup(BuildContext context) {
+    final _controller = quill.QuillController.basic();
+
     showDialog(
       context: context,
       builder: (context) {
@@ -151,33 +155,44 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
                   'Create New Post',
                   style: TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: quill.QuillEditor(
+                const SizedBox(height: 16.0),
+                // Toolbar with selected tools
+                quill.QuillSimpleToolbar(
                   controller: _controller,
-                  scrollController: ScrollController(),
-                  focusNode: FocusNode(),
+                  configurations: quill.QuillSimpleToolbarConfigurations(
+                    showBoldButton: true,
+                    showItalicButton: true,
+                    showColorButton: true,
+
+                  ),
                 ),
-              ),
-              quill.QuillToolbar.simple(
-                controller: _controller,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: ElevatedButton(
+                const SizedBox(height: 16.0),
+                // Framed text editor
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey[400]!),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  padding: const EdgeInsets.all(8.0),
+                  child: quill.QuillEditor.basic(
+                    controller: _controller,
+
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                ElevatedButton(
                   onPressed: () {
                     final content = _controller.document.toPlainText().trim();
                     _createNewPost(content);
@@ -185,8 +200,8 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
                   },
                   child: Text('Post'),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

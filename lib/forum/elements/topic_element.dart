@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../entities/Topic.dart';
-
 
 class TopicElement extends StatelessWidget {
   final Topic topic;
@@ -23,7 +23,7 @@ class TopicElement extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         padding: const EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: topic.isClosed ? Colors.grey[300] : Colors.grey[200],
           borderRadius: BorderRadius.circular(8.0),
           boxShadow: [
             BoxShadow(
@@ -50,13 +50,23 @@ class TopicElement extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Text(
-                  '${topic.postIds.length} replies',
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      '${topic.postIds.length} replies',
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (topic.isClosed)
+                      Icon(
+                        Icons.lock,
+                        color: Colors.red,
+                        size: 20,
+                      ),
+                  ],
                 ),
               ],
             ),
@@ -69,7 +79,6 @@ class TopicElement extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10.0),
-            // Admin-only buttons for "Close" and "Archive"
             if (isAdmin)
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -78,34 +87,32 @@ class TopicElement extends StatelessWidget {
                     onPressed: () {
                       _showConfirmationPopup(
                         context,
-                        'Close Topic',
-                        'Are you sure you want to close this topic?',
-                            () {
-                          // Logic to handle topic closing
-                          Navigator.of(context).pop(); // Close the popup
-                        },
+                        topic.isClosed ? 'Reopen Topic' : 'Close Topic',
+                        topic.isClosed
+                            ? 'Are you sure you want to reopen this topic?'
+                            : 'Are you sure you want to close this topic?',
+                            () => _toggleTopicStatus(context, 'isClosed', !topic.isClosed),
                       );
                     },
                     child: Text(
-                      'Close',
-                      style: TextStyle(color: Colors.red),
+                      topic.isClosed ? 'Reopen' : 'Close',
+                      style: TextStyle(color: topic.isClosed ? Colors.green : Colors.red),
                     ),
                   ),
                   TextButton(
                     onPressed: () {
                       _showConfirmationPopup(
                         context,
-                        'Archive Topic',
-                        'Are you sure you want to archive this topic?',
-                            () {
-                          // Logic to handle topic archiving
-                          Navigator.of(context).pop(); // Close the popup
-                        },
+                        topic.isArchived ? 'Dust off Topic' : 'Archive Topic',
+                        topic.isArchived
+                            ? 'Are you sure you want to dust off this topic?'
+                            : 'Are you sure you want to archive this topic?',
+                            () => _toggleTopicStatus(context, 'isArchived', !topic.isArchived),
                       );
                     },
                     child: Text(
-                      'Archive',
-                      style: TextStyle(color: Colors.blue),
+                      topic.isArchived ? 'Dust off' : 'Archive',
+                      style: TextStyle(color: topic.isArchived ? Colors.green : Colors.blue),
                     ),
                   ),
                 ],
@@ -116,8 +123,52 @@ class TopicElement extends StatelessWidget {
     );
   }
 
+  Future<void> _toggleTopicStatus(BuildContext context, String field, bool newValue) async {
+    try {
+      final response = await http.put(
+        Uri.parse('http://10.0.2.2:9090/topics/${topic.id}'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({field: newValue}),
+      );
+
+      if (response.statusCode == 200) {
+        print("Topic $field updated successfully.");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Topic ${field == 'isClosed' ? (newValue ? 'closed' : 'reopened') : (newValue ? 'archived' : 'dusted off')} successfully')),
+        );
+      } else {
+        throw Exception('Failed to update topic');
+      }
+    } catch (e) {
+      print('Error updating topic: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating topic: $e')),
+      );
+    }
+  }
+
   void _showConfirmationPopup(BuildContext context, String title, String message, VoidCallback onConfirm) {
-    // Implementation of the confirmation popup
-    // (You can keep your existing implementation here)
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                onConfirm();
+              },
+              child: Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
