@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 const { Schema, model } = mongoose;
-
 const userSchema = new Schema({
     username: {
         type: String,
@@ -23,7 +22,8 @@ const userSchema = new Schema({
     banned: {
         type: Boolean,
         default: false // Default is not banned
-    }
+    },
+    blogs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Blog' }] // Reference to Blog model
 });
 
 export default model("User", userSchema);

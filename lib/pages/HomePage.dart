@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gamefan_app/pages/blog/BlogScreen.dart';
 import 'package:gamefan_app/pages/user/ProfilePage.dart';
 import '../entities/user.dart';
 
@@ -92,9 +93,9 @@ class _HomePageState extends State<HomePage> {
             ),
             ListTile(
               leading: Icon(Icons.article),
-              title: Text('Blog'),
+              title: Text('Blogs'),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pushNamed(context, '/Blogs');  // Fixed: Using named route
               },
             ),
             ListTile(
@@ -169,7 +170,9 @@ class _HomePageState extends State<HomePage> {
               context,
               icon: Icons.article,
               label: 'Blog',
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, '/Blogs');  // Fixed: Using named route
+              },
             ),
             _buildGridButton(
               context,
