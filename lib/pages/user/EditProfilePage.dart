@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gamefan_app/entities/UserModel.dart';
 import 'package:http/http.dart' as http;  // Import http package
 import 'dart:convert'; // For JSON encoding
 import '../../entities/user.dart';
-import '../../entities/UserModel.dart';
 import 'ProfilePage.dart';
-import 'package:gamefan_app/entities/UserModel.dart'; // Make sure the import is correct
 import 'package:provider/provider.dart';
 
 

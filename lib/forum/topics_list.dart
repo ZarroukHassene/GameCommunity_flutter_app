@@ -9,12 +9,10 @@ import '../entities/TopicCategory.dart';
 import '../main.dart';
 import 'elements/topic_element.dart';
 import 'package:provider/provider.dart';
-import '../entities/UserModel.dart';
 
 class TopicsListView extends StatefulWidget {
   final TopicCategory category;
   final bool isAdmin;
-
 
   const TopicsListView({
     Key? key,
@@ -22,12 +20,22 @@ class TopicsListView extends StatefulWidget {
     required this.isAdmin,
   }) : super(key: key);
 
+
   @override
   _TopicsListViewState createState() => _TopicsListViewState();
 }
 
 class _TopicsListViewState extends State<TopicsListView> {
   List<Topic> _topics = [];
+  late User user;
+
+  Future<void> loadUserData() async {
+    try {
+      user = (await User.claimCurrentUser())!; // Await the Future
+    } catch (error) {
+      print('Error retrieving user: $error');
+    }
+  }
   // Quill editor controller for rich text post content
   final quill.QuillController _quillController = quill.QuillController.basic();
 
@@ -35,6 +43,7 @@ class _TopicsListViewState extends State<TopicsListView> {
   void initState() {
     super.initState();
     _fetchTopics();
+    loadUserData();
   }
 
   // Fetch topics for the category
@@ -167,8 +176,8 @@ class _TopicsListViewState extends State<TopicsListView> {
 
   // API call to create a new topic
   Future<void> _createNewTopic(String title, String postContent) async {
-    final userProvider = Provider.of<UserModel>(context, listen: false);
-    final currentUser = userProvider.currentUser;
+
+
     if (title.isEmpty || postContent.isEmpty) return;
 
     try {
@@ -177,7 +186,7 @@ class _TopicsListViewState extends State<TopicsListView> {
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'title': title,
-          'authorId': currentUser?.id ?? '',
+          'authorId': user?.id ?? '',
           'initialPost': postContent,
         }),
       );

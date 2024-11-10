@@ -5,10 +5,9 @@ import 'package:provider/provider.dart';
 import 'dart:convert';
 import '../../entities/Topic.dart';
 import '../../entities/Post.dart';
-import '../entities/ForumUser.dart';
+import '../entities/user.dart';
 import '../main.dart';
 import 'elements/post_element.dart';
-import '../entities/UserModel.dart';
 
 class TopicDetailsView extends StatefulWidget {
   final Topic topic;
@@ -26,12 +25,22 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
   final quill.QuillController _controller = quill.QuillController.basic();
   List<Post> posts = []; // List to store posts
 
+  late User user;
+
   @override
   void initState() {
     super.initState();
+    loadUserData();
     _fetchPosts(); // Fetch posts when the widget is initialized
   }
 
+  Future<void> loadUserData() async {
+    try {
+      user = (await User.claimCurrentUser())!; // Await the Future
+    } catch (error) {
+      print('Error retrieving user: $error');
+    }
+  }
   // Fetch posts for the topic
   Future<void> _fetchPosts() async {
     try {
@@ -211,11 +220,8 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
 
   Future<void> _createNewPost(String postContent) async {
     try {
-      // Access the current user from UserProvider
-      final userProvider = Provider.of<UserModel>(context, listen: false);
-      final currentUser = userProvider.currentUser;
       // Ensure the current user is not null
-      if (currentUser == null) {
+      if (user == null) {
         print('Error: No user logged in.');
         return;
       }
@@ -226,7 +232,7 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'content': postContent,
-          'authorId': currentUser.id, // Pass the current user's ID as the author
+          'authorId': user.id, // Pass the current user's ID as the author
         }),
       );
 

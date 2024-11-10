@@ -5,16 +5,25 @@ import 'EditProfilePage.dart';
 import 'SignInPage.dart';
 
 class ProfilePage extends StatelessWidget {
-  final User user;
+  User user;
 
   ProfilePage({Key? key, required this.user}) : super(key: key);
 
+  Future<void> loadUserData() async {
+    try {
+       user = (await User.claimCurrentUser())!; // Await the Future
+    } catch (error) {
+      print('Error retrieving user: $error');
+    }
+  }
   @override
   Widget build(BuildContext context) {
 
+print("AAAAAAAAAAAAAAA " + user.toString());
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile of ${user.username}', style: TextStyle(fontWeight: FontWeight.bold)),
+
         backgroundColor: Colors.deepPurple,
         automaticallyImplyLeading: false, // Disable the back button
         actions: [
