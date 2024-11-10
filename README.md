@@ -1,4 +1,4 @@
-# gamefan_app
+# my_blog
 
 A new Flutter project.
 
