@@ -5,6 +5,7 @@ import 'package:gamefan_app/entities/user.dart';
 import 'package:gamefan_app/entities/userModel.dart'; // Make sure the import is correct
 import 'showProfilePage.dart';
 import 'signUpPage.dart';
+import 'ProfilePage.dart';
 import 'package:provider/provider.dart';
 
 class SignInPage extends StatelessWidget {
@@ -113,7 +114,7 @@ class SignInPage extends StatelessWidget {
             if (currentUser != null) {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ShowProfilePage(user: currentUser)),
+                MaterialPageRoute(builder: (context) => ProfilePage(user: currentUser)),
               );
             } else {
               print('User is not logged in.');

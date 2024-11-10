@@ -26,4 +26,26 @@ class User {
       username: map['username'],
     );
   }
+
+factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['_id'] as String? ?? '', // Default to empty string if null
+      email: json['email'] as String? ?? 'Anonymous',
+      username: json['username'] as String? ?? 'Anonymous',
+    );
+  }
+
+  //FromJson
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'username': username,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'User{id: $id, email: $email, username: $username}';
+  }
 }

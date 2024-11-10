@@ -4,11 +4,12 @@ import 'package:gamefan_app/forum/posts_list.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../entities/Topic.dart';
-import '../entities/ForumUser.dart';
+import '../entities/user.dart';
 import '../entities/TopicCategory.dart';
 import '../main.dart';
 import 'elements/topic_element.dart';
 import 'package:provider/provider.dart';
+import '../entities/UserModel.dart';
 
 class TopicsListView extends StatefulWidget {
   final TopicCategory category;
@@ -166,9 +167,8 @@ class _TopicsListViewState extends State<TopicsListView> {
 
   // API call to create a new topic
   Future<void> _createNewTopic(String title, String postContent) async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    //final currentUser = userProvider.currentUser;
-    FUser currentUser = FUser(id: '671ec40066de43881f2b6c53', username: 'hassen');
+    final userProvider = Provider.of<UserModel>(context, listen: false);
+    final currentUser = userProvider.currentUser;
     if (title.isEmpty || postContent.isEmpty) return;
 
     try {

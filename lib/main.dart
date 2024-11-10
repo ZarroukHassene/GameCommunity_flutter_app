@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'pages/user/signInPage.dart'; // Ensure this is the correct path
-import 'entities/user.dart';
+import 'pages/user/signInPage.dart';
 import 'pages/user/signUpPage.dart';
 import 'pages/user/EditProfilePage.dart';
-import 'pages/user/ShowProfilePage.dart'; // Ensure this is the correct path
-import 'entities/userModel.dart'; // Import UserModel
+import 'pages/user/ShowProfilePage.dart';
+import 'entities/userModel.dart';
+import 'forum/categories_list.dart'; // Ensure the correct path
 
 void main() {
   runApp(
@@ -24,13 +24,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
       ),
-      home: SignInPage(), // The entry point of your application
-      // Define your routes if necessary
-      // routes: {
-      //   '/signUp': (context) => SignUpPage(),
-      //   '/editProfile': (context) => EditProfilePage(),
-      //   '/showProfile': (context) => ShowProfilePage(),
-      // },
+      home: SignInPage(),
+      routes: {
+        '/signUp': (context) => SignUpPage(),
+        '/ForumHome': (context) => CategoriesListView(),
+      },
     );
   }
 }

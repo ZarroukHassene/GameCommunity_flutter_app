@@ -1,4 +1,4 @@
-class FUser {
+/*class FUser {
   final String id;
   final String username;
 
@@ -26,4 +26,4 @@ class FUser {
       username: json['username'] as String? ?? 'Anonymous',
     );
   }
-}
+*/

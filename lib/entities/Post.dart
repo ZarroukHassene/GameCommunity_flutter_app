@@ -1,10 +1,11 @@
-import 'ForumUser.dart';
+import 'user.dart';
+
 
 class Post {
   final String id;
   final String content;
   final DateTime createdAt;
-  final FUser author;
+  final User author;
   final List<String> userLikes;
 
   Post({
@@ -35,7 +36,7 @@ class Post {
       id: json['_id'] as String,
       content: json['content'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      author: FUser.fromJson(json['author'] as Map<String, dynamic>),
+      author: User.fromJson(json['author'] as Map<String, dynamic>),
       userLikes: json['userLikes'] != null
           ? List<String>.from(json['userLikes'] as Iterable<dynamic>)
           : [],

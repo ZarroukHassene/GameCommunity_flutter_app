@@ -18,7 +18,12 @@ const postSchema = new mongoose.Schema({
   isDeleted: {
     type: Boolean,
     default: false
-  }
+  },
+  userLikes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'userLikes',
+    required: false
+  }],
 }, { timestamps: true });
 
 const Post = mongoose.model('Post', postSchema);

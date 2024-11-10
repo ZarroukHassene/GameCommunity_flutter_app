@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.get('/:categoryId', TopicController.getCategoryTopics);
 router.post('/:categoryId', TopicController.createTopic);
-router.get('/:topicId', TopicController.updateTopicStatus);
+router.put('/:topicId', TopicController.updateTopicStatus);
 
 export default router;

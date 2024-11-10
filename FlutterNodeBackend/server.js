@@ -8,7 +8,7 @@ import { notfound } from './middlewares/notFound.js';
 import postRouter from './routes/postrouter.js';
 import topicRouter from './routes/topicrouter.js';
 import topicCategoryRouter from './routes/topiccategoryrouter.js';
-import userRouter  from './routes/userrouter.js';
+import router  from './routes/userrouter.js';
 
 
 const app = express();
@@ -40,7 +40,7 @@ app.use(notfound);
 app.use('/posts', postRouter);
 app.use('/topics', topicRouter);
 app.use('/categories', topicCategoryRouter);
-app.use('/users', userRouter);
+app.use('/user', router);
 
 
 

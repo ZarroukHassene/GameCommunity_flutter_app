@@ -8,6 +8,7 @@ import '../../entities/Post.dart';
 import '../entities/ForumUser.dart';
 import '../main.dart';
 import 'elements/post_element.dart';
+import '../entities/UserModel.dart';
 
 class TopicDetailsView extends StatefulWidget {
   final Topic topic;
@@ -211,10 +212,8 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
   Future<void> _createNewPost(String postContent) async {
     try {
       // Access the current user from UserProvider
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      //final currentUser = userProvider.currentUser;
-      FUser currentUser = FUser(id: '671f66bb914306b644bb0cf3', username: 'user2');
-
+      final userProvider = Provider.of<UserModel>(context, listen: false);
+      final currentUser = userProvider.currentUser;
       // Ensure the current user is not null
       if (currentUser == null) {
         print('Error: No user logged in.');
