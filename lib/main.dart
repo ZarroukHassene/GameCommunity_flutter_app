@@ -22,6 +22,7 @@ class MyApp extends StatelessWidget {
       home: SignInPage(),
       routes: {
         '/signUp': (context) => SignUpPage(),
+        '/SignInPage': (context) => SignInPage(),
     '/ForumHome': (context) => CategoriesListView(),
         '/HomePage': (context) => HomePage(),
       },

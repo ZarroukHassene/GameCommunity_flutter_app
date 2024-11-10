@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gamefan_app/pages/HomePage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:gamefan_app/entities/user.dart';
 import 'signUpPage.dart';
 import 'ProfilePage.dart';
-
 
 class SignInPage extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
@@ -14,7 +14,11 @@ class SignInPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sign In', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        automaticallyImplyLeading: false, // This line removes the back button
+        title: Text(
+          '',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -73,7 +77,6 @@ class SignInPage extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildSignInButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
@@ -90,7 +93,7 @@ class SignInPage extends StatelessWidget {
             body: jsonEncode({
               'username': username,
               'password': password,
-              'role':role,
+              'role': role,
             }),
           );
 
@@ -106,22 +109,55 @@ class SignInPage extends StatelessWidget {
             );
             print('Response 123: $newUser');
 
-            // Use context.read to access the UserModel provider
-
             User.saveUser(newUser);
-            // Navigate to the ProfilePage if the login was successful
+
             if (newUser != null) {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ProfilePage(user: newUser)),
+                MaterialPageRoute(builder: (context) => HomePage()),
               );
             } else {
               print('User is not logged in.');
             }
           } else {
-            print('Failed to log in: ${response.body}');
+            // Show a pop-up with the error message
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Login Failed'),
+                  content: Text('Invalid Credentials'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            );
           }
         } catch (error) {
+          // Show a pop-up if an error occurs during the request
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Error'),
+                content: Text('An error occurred: $error'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
           print('Error occurred: $error');
         }
       },

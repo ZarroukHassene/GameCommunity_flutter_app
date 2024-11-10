@@ -60,6 +60,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
             // Successfully updated user
             print('User updated successfully!');
+            User.saveUser(User.fromJson(jsonData));
             Navigator.push(
               context,
               MaterialPageRoute(

@@ -1,8 +1,35 @@
 import 'package:flutter/material.dart';
- // Import CategoriesListView
+import 'package:gamefan_app/pages/user/ProfilePage.dart';
+import '../entities/user.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late User? newUser;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserData();
+  }
+
+  Future<void> loadUserData() async {
+    try {
+      newUser = await User.claimCurrentUser();
+    } catch (error) {
+      print('Error retrieving user: $error');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +65,22 @@ class HomePage extends StatelessWidget {
               leading: Icon(Icons.person),
               title: Text('Profile'),
               onTap: () {
-                // Placeholder for profile route
-                Navigator.pop(context);
+                if (isLoading) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Loading user data...')),
+                  );
+                } else if (newUser == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('No user found')),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfilePage(user: newUser!),
+                    ),
+                  );
+                }
               },
             ),
             ListTile(
@@ -53,7 +94,6 @@ class HomePage extends StatelessWidget {
               leading: Icon(Icons.article),
               title: Text('Blog'),
               onTap: () {
-                // Placeholder for blog route
                 Navigator.pop(context);
               },
             ),
@@ -61,7 +101,6 @@ class HomePage extends StatelessWidget {
               leading: Icon(Icons.shopping_cart),
               title: Text('Shop'),
               onTap: () {
-                // Placeholder for shop route
                 Navigator.pop(context);
               },
             ),
@@ -69,7 +108,6 @@ class HomePage extends StatelessWidget {
               leading: Icon(Icons.sports_esports),
               title: Text('Matches'),
               onTap: () {
-                // Placeholder for matches route
                 Navigator.pop(context);
               },
             ),
@@ -77,14 +115,23 @@ class HomePage extends StatelessWidget {
               leading: Icon(Icons.help),
               title: Text('Assistance'),
               onTap: () {
-                // Placeholder for assistance route
                 Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () {
+                User.logout(); // Call the logout method from user.dart
+                Navigator.pushReplacementNamed(context, '/SignInPage'); // Navigate to the sign-in page
               },
             ),
           ],
         ),
       ),
-      body: Padding(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.count(
           crossAxisCount: 2,
@@ -96,7 +143,18 @@ class HomePage extends StatelessWidget {
               icon: Icons.person,
               label: 'Profile',
               onTap: () {
-                // Placeholder for profile route
+                if (newUser == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('No user found')),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfilePage(user: newUser!),
+                    ),
+                  );
+                }
               },
             ),
             _buildGridButton(
@@ -111,33 +169,25 @@ class HomePage extends StatelessWidget {
               context,
               icon: Icons.article,
               label: 'Blog',
-              onTap: () {
-                // Placeholder for blog route
-              },
+              onTap: () {},
             ),
             _buildGridButton(
               context,
               icon: Icons.shopping_cart,
               label: 'Shop',
-              onTap: () {
-                // Placeholder for shop route
-              },
+              onTap: () {},
             ),
             _buildGridButton(
               context,
               icon: Icons.sports_esports,
               label: 'Matches',
-              onTap: () {
-                // Placeholder for matches route
-              },
+              onTap: () {},
             ),
             _buildGridButton(
               context,
               icon: Icons.help,
               label: 'Assistance',
-              onTap: () {
-                // Placeholder for assistance route
-              },
+              onTap: () {},
             ),
           ],
         ),
