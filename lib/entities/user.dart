@@ -3,13 +3,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 // User class
 class User {
   final String id;
-  late final String email;
-  late final String username;
+  final String email;
+  final String username;
+  final String role; // New role property
 
   User({
     required this.id,
     required this.email,
     required this.username,
+    required this.role,
   });
 
   // Convert a User object into a Map
@@ -18,6 +20,7 @@ class User {
       'id': id,
       'email': email,
       'username': username,
+      'role': role,
     };
   }
 
@@ -27,28 +30,33 @@ class User {
       id: map['id'],
       email: map['email'],
       username: map['username'],
+      role: map['role'] ?? 'player', // Default role to "player" if not provided
     );
   }
 
+  // Create a User object from JSON data
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['_id'] as String? ?? '', // Default to empty string if null
       email: json['email'] as String? ?? 'Anonymous',
       username: json['username'] as String? ?? 'Anonymous',
+      role: json['role'] as String? ?? 'player', // Default to "player" if null
     );
   }
 
+  // Convert a User object to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'email': email,
       'username': username,
+      'role': role,
     };
   }
 
   @override
   String toString() {
-    return 'User{id: $id, email: $email, username: $username}';
+    return 'User{id: $id, email: $email, username: $username, role: $role}';
   }
 
   // Save user to SharedPreferences
@@ -58,6 +66,7 @@ class User {
     prefs.setString('user_id', user.id);
     prefs.setString('user_email', user.email);
     prefs.setString('user_username', user.username);
+    prefs.setString('user_role', user.role); // Save role to SharedPreferences
   }
 
   // Claim the current user from SharedPreferences
@@ -68,6 +77,7 @@ class User {
     String? id = prefs.getString('user_id');
     String? email = prefs.getString('user_email');
     String? username = prefs.getString('user_username');
+    String? role = prefs.getString('user_role') ?? 'player'; // Default to "player"
 
     if (id == null || email == null || username == null) {
       return null; // No user data found
@@ -77,6 +87,7 @@ class User {
       id: id,
       email: email,
       username: username,
+      role: role,
     );
   }
 
@@ -88,8 +99,6 @@ class User {
     await prefs.remove('user_id');
     await prefs.remove('user_email');
     await prefs.remove('user_username');
-
-    // Optionally, you can clear all prefs using `prefs.clear()` to remove all data
-    // await prefs.clear(); // Uncomment to clear all SharedPreferences data
+    await prefs.remove('user_role'); // Remove role from SharedPreferences
   }
 }

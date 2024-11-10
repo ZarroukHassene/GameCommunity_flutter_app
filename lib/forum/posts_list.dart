@@ -57,6 +57,9 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
     } catch (e) {
       print('Error fetching posts: $e');
     }
+
+
+
   }
 
   // Delete a post
@@ -131,6 +134,7 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
                   onTap: () {
                     //_deletePost(post.id); // Trigger delete post when tapped
                   },
+
                 );
               },
             ),

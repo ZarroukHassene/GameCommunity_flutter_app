@@ -79,6 +79,7 @@ class SignInPage extends StatelessWidget {
       onPressed: () async {
         String username = _usernameController.text;
         String password = _passwordController.text;
+        String role = 'player';
 
         final url = Uri.parse('http://10.0.2.2:9090/user/login');
 
@@ -89,6 +90,7 @@ class SignInPage extends StatelessWidget {
             body: jsonEncode({
               'username': username,
               'password': password,
+              'role':role,
             }),
           );
 
@@ -100,6 +102,7 @@ class SignInPage extends StatelessWidget {
               id: responseBody['_id'],
               username: responseBody['username'],
               email: responseBody['email'],
+              role: responseBody['role'],
             );
             print('Response 123: $newUser');
 

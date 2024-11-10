@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../entities/Post.dart';
 
-class PostElement extends StatelessWidget {
+class PostElement extends StatefulWidget {
   final Post post;
   final String currentUserId;
   final VoidCallback? onTap;
@@ -15,7 +15,20 @@ class PostElement extends StatelessWidget {
     this.onTap,
   }) : super(key: key);
 
-  bool get isLiked => post.userLikes.contains(currentUserId);
+  @override
+  _PostElementState createState() => _PostElementState();
+}
+
+class _PostElementState extends State<PostElement> {
+  late bool isLiked;
+  late int likeCount;
+
+  @override
+  void initState() {
+    super.initState();
+    isLiked = widget.post.userLikes.contains(widget.currentUserId);
+    likeCount = widget.post.userLikes.length;
+  }
 
   Future<void> _toggleLike() async {
     final url = Uri.parse('http://10.0.2.2:9090/posts/likePost');
@@ -23,16 +36,23 @@ class PostElement extends StatelessWidget {
       url,
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
-        'userId': currentUserId,
-        'postId': post.id,
+        'userId': widget.currentUserId,
+        'postId': widget.post.id,
       }),
     );
 
     if (response.statusCode == 200) {
-      // Toggle the like status locally or refresh the state as needed
-      print(isLiked ? 'Post unliked' : 'Post liked');
+      setState(() {
+        isLiked = !isLiked;
+        if (isLiked) {
+          widget.post.userLikes.add(widget.currentUserId);
+          likeCount++;
+        } else {
+          widget.post.userLikes.remove(widget.currentUserId);
+          likeCount--;
+        }
+      });
     } else {
-      // Handle error
       print('Error toggling like status: ${response.body}');
     }
   }
@@ -40,7 +60,7 @@ class PostElement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         padding: const EdgeInsets.all(12.0),
@@ -58,42 +78,70 @@ class PostElement extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Post content
             Text(
-              post.content,
+              widget.post.content,
               style: TextStyle(
                 fontSize: 16.0,
                 color: Colors.black87,
+                height: 1.4,
               ),
+              maxLines: 3, // Limit to 3 lines
+              overflow: TextOverflow.ellipsis, // Truncate if too long
             ),
-            const SizedBox(height: 8.0),
+            const SizedBox(height: 12.0),
+            // Author and Date information
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Use Flexible to prevent overflow
+                Flexible(
+                  child: Text(
+                    'By: ${widget.post.author.username}',
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.grey[700],
+                    ),
+                    overflow: TextOverflow.ellipsis, // Handle overflow
+                  ),
+                ),
+                const SizedBox(width: 8.0),
+                Flexible(
+                  child: Text(
+                    'Posted on: ${formatDate(widget.post.createdAt)}',
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.grey[700],
+                    ),
+                    overflow: TextOverflow.ellipsis, // Handle overflow
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 20, thickness: 1.0, color: Colors.grey),
+            // Like icon, count, and button
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    Text(
-                      'By: ${post.author.username}',
-                      style: TextStyle(
-                        fontSize: 14.0,
-                        color: Colors.grey[700],
+                    IconButton(
+                      icon: Icon(
+                        Icons.favorite,
+                        color: isLiked ? Colors.red : Colors.grey,
                       ),
+                      onPressed: _toggleLike,
                     ),
-                    const SizedBox(width: 16.0),
+                    const SizedBox(width: 4.0),
                     Text(
-                      'Posted on: ${formatDate(post.createdAt)}',
+                      '$likeCount Likes',
                       style: TextStyle(
                         fontSize: 14.0,
                         color: Colors.grey[700],
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.favorite,
-                    color: isLiked ? Colors.red : Colors.grey,
-                  ),
-                  onPressed: _toggleLike,
                 ),
               ],
             ),
@@ -107,4 +155,3 @@ class PostElement extends StatelessWidget {
     return '${date.day}-${date.month}-${date.year}';
   }
 }
-

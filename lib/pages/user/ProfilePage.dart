@@ -30,7 +30,7 @@ print("AAAAAAAAAAAAAAA " + user.toString());
           IconButton(
             icon: Icon(Icons.forum),
             onPressed: () {
-              Navigator.pushNamed(context, '/ForumHome');
+              Navigator.pushNamed(context, '/HomePage');
             },
           ),
         ],

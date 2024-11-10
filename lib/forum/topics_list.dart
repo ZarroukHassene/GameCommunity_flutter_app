@@ -53,10 +53,9 @@ class _TopicsListViewState extends State<TopicsListView> {
 
       if (response.statusCode == 200) {
         final List<dynamic> topicList = json.decode(response.body);
+        print(topicList); // Log the raw API response
         setState(() {
-          print(response.body);
-          print(topicList);
-          _topics = topicList.map((json) => Topic.fromJson(json)).toList();
+          _topics = topicList.map((json) => Topic.fromJson(json)).where((topic) => !topic.isArchived).toList();
         });
       } else {
         throw Exception('Failed to load topics');
@@ -89,6 +88,7 @@ class _TopicsListViewState extends State<TopicsListView> {
 
               );
             },
+            onArchive: () => _fetchTopics(),
           );
         },
       ),

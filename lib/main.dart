@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gamefan_app/pages/HomePage.dart';
+import 'entities/user.dart';
 import 'pages/user/signInPage.dart';
 import 'pages/user/signUpPage.dart';
 import 'forum/categories_list.dart'; // Ensure the correct path
@@ -20,7 +22,8 @@ class MyApp extends StatelessWidget {
       home: SignInPage(),
       routes: {
         '/signUp': (context) => SignUpPage(),
-        '/ForumHome': (context) => CategoriesListView(),
+    '/ForumHome': (context) => CategoriesListView(),
+        '/HomePage': (context) => HomePage(),
       },
     );
   }

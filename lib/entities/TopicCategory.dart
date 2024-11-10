@@ -3,36 +3,36 @@ import 'Topic.dart';
 class TopicCategory {
   final String id;
   final String name;
-  final DateTime createdAt = DateTime.now();
-  final List<String> topicIds = [];
+  final DateTime createdAt;
+  final List<Topic> topics;
 
   TopicCategory({
     required this.id,
     required this.name,
-    required List<Topic> topicIds,
-  });
+    required this.topics,
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
 
-
-Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
-      'topics': topicIds,
+      'topics': topics.map((topic) => topic.toJson()).toList(),
     };
   }
 
-
-@override
+  @override
   String toString() {
-    return 'TopicCategory{id: $id, name $name, topics: $topicIds}';
+    return 'TopicCategory{id: $id, name $name, topics: $topics}';
   }
 
-  //From json
   factory TopicCategory.fromJson(Map<String, dynamic> json) {
     return TopicCategory(
       id: json['_id'] as String,
       name: json['name'] as String,
-      topicIds: (json['topics'] as List).map((e) => Topic.fromJson(e)).toList(),
+      topics: (json['topics'] as List)
+          .map((e) => Topic.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 }

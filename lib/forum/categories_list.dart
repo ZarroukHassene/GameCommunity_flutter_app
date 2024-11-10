@@ -4,17 +4,18 @@ import 'dart:convert';
 import '../entities/ForumUser.dart';
 import '../entities/Topic.dart';
 import '../entities/TopicCategory.dart';
+import '../entities/user.dart';
 import 'elements/category_element.dart';
 
 import 'topics_list.dart';
 
 class CategoriesListView extends StatefulWidget {
-  final bool isAdmin;
+
 
   CategoriesListView({
     Key? key,
-    this.isAdmin = false,
   }) : super(key: key);
+
 
   @override
   _CategoriesListViewState createState() => _CategoriesListViewState();
@@ -24,11 +25,22 @@ class _CategoriesListViewState extends State<CategoriesListView> {
   List<TopicCategory> categories = [];
   List<TopicCategory> filteredCategories = [];
   TextEditingController searchController = TextEditingController();
+  late bool isAdmin=false;
+  late User user;
 
+  Future<void> loadUserData() async {
+    try {
+      user = (await User.claimCurrentUser())!; // Await the Future
+      isAdmin = user.role == "admin";
+    } catch (error) {
+      print('Error retrieving user: $error');
+    }
+  }
   @override
   void initState() {
     super.initState();
-    _fetchCategories(); // Fetch categories on init
+    loadUserData();
+    _fetchCategories();
   }
 
   // Fetch categories from the API
@@ -102,31 +114,28 @@ class _CategoriesListViewState extends State<CategoriesListView> {
                       MaterialPageRoute(
                         builder: (context) => TopicsListView(
                           category: category,
-                          isAdmin: widget.isAdmin,
+                          isAdmin: isAdmin,
 
                         ),
                       ),
                     );
                   },
-                  onEdit: widget.isAdmin ? () => _showEditCategoryPopup(context, category) : null,
-                  onDelete: widget.isAdmin ? () => _showDeleteConfirmationPopup(context, category) : null,
+                  onEdit: isAdmin ? () => _showEditCategoryPopup(context, category) : null,
+                  onDelete: isAdmin ? () => _showDeleteConfirmationPopup(context, category) : null,
                 );
               },
             ),
           ),
         ],
       ),
-      floatingActionButton: widget.isAdmin
-          ? Align(
-        alignment: Alignment.bottomLeft,
-        child: FloatingActionButton(
-          onPressed: () {
-            _showCreateCategoryPopup(context);
-          },
-          child: Icon(Icons.add),
-          tooltip: 'Create Category',
-          heroTag: 'createCategoryFAB',
-        ),
+      floatingActionButton: isAdmin
+          ? FloatingActionButton(
+        onPressed: () {
+          _showCreateCategoryPopup(context);
+        },
+        child: Icon(Icons.add),
+        tooltip: 'Create Category',
+        heroTag: 'createCategoryFAB',
       )
           : null,
     );
