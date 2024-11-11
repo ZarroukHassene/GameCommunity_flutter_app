@@ -30,18 +30,44 @@ export const createBlog = async (req, res) => {
     }
 };
 
-// Get all blogs of the logged-in user
 export const getUserBlogs = async (req, res) => {
     try {
-        const blog = await Blog.findById(req.params.blogId).populate('user');
-        if (!blog) {
-          return res.status(404).json({ message: 'Blog not found' });
-        }
-        res.status(200).json(blog);
-      } catch (error) {
-        res.status(500).json({ message: 'Error fetching blog details', error: error.message });
+      const blog = await Blog.findById(req.params.blogId)
+        .populate({
+          path: 'comments',
+          populate: { path: 'user', select: 'username' }, // Populate user data within each comment
+        })
+        .populate('user', 'username'); // Populate blog owner data
+  
+      if (!blog) {
+        return res.status(404).json({ message: 'Blog not found' });
       }
-};
+  
+      res.status(200).json(blog);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching blog details', error: error.message });
+    }
+  };
+  
+// Assuming you have a `Comment` model that references a `User` model
+
+export const getCommentById = async (req, res) => {
+    try {
+      const { commentId } = req.params;
+  
+      // Find the comment and include user details
+      const comment = await Comment.findById(commentId).populate('user', 'username');
+  
+      if (!comment) {
+        return res.status(404).json({ message: 'Comment not found' });
+      }
+  
+      res.status(200).json(comment); // Ensure it returns `text`, `_id`, and `user`
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching comment details', error: error.message });
+    }
+  };
+  
 
 // Update a blog (only allowed for the owner of the blog)
 export const updateBlog = async (req, res) => {

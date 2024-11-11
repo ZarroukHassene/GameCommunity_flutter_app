@@ -85,7 +85,7 @@ class SignInPage extends StatelessWidget {
         String username = _usernameController.text;
         String password = _passwordController.text;
 
-        final url = Uri.parse('http://10.0.2.2:9090/user/login');
+        final url = Uri.parse('http://192.168.43.42:9090/user/login');
 
         try {
           final response = await http.post(

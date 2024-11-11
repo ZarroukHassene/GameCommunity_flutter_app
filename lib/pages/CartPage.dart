@@ -36,7 +36,7 @@ class _CartPageState extends State<CartPage> {
 
   // Fetch Cart Data from API
   Future<Cart> fetchCart(String userId) async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:9090/api/cart/$userId'));
+    final response = await http.get(Uri.parse('http://192.168.43.42:9090/api/cart/$userId'));
 
     if (response.statusCode == 200) {
       return Cart.fromJson(jsonDecode(response.body));
@@ -48,7 +48,7 @@ class _CartPageState extends State<CartPage> {
   // Remove item from cart
   Future<void> removeItemFromCart(String productId) async {
     final response = await http.delete(
-      Uri.parse('http://10.0.2.2:9090/api/cart/remove'),
+      Uri.parse('http://192.168.43.42:9090/api/cart/remove'),
       headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
       body: jsonEncode({
         'userId': userId,
@@ -71,7 +71,7 @@ class _CartPageState extends State<CartPage> {
   // Remove all items from the cart
   Future<void> removeAllItemsFromCart() async {
     final response = await http.delete(
-      Uri.parse('http://10.0.2.2:9090/api/cart/deleteAll'),
+      Uri.parse('http://192.168.43.42:9090/api/cart/deleteAll'),
       headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
       body: jsonEncode({'userId': userId}),
     );

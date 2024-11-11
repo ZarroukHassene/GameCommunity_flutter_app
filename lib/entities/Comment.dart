@@ -12,11 +12,12 @@ class Comment {
   });
 
   factory Comment.fromJson(Map<String, dynamic> json) {
+    final user = json['user'] ?? {}; // Ensure 'user' is retrieved from the response
     return Comment(
       id: json['_id'] ?? '',
-      userId: json['user']['_id'] ?? '',
-      username: json['user']['username'] ?? 'Unknown user',
-      commentText: json['comment'] ?? '',
+      userId: user['_id'] ?? '',
+      username: user['username'] ?? 'Unknown user',
+      commentText: json['text'] ?? '', // Make sure this matches the backend comment field
     );
   }
 
@@ -24,7 +25,7 @@ class Comment {
     return {
       '_id': id,
       'user': {'_id': userId, 'username': username},
-      'comment': commentText,
+      'text': commentText, // Make sure this matches the backend comment field
     };
   }
 }

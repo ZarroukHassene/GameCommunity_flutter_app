@@ -27,7 +27,7 @@ class _BlogScreenState extends State<BlogScreen> {
   // Fetch all blogs from the backend
   Future<void> _fetchBlogs() async {
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:9090/user/blog/blogz'));
+      final response = await http.get(Uri.parse('http://192.168.43.42:9090/user/blog/blogz'));
 
       if (response.statusCode == 200) {
         final decodedData = json.decode(response.body);

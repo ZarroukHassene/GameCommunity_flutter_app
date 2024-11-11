@@ -31,7 +31,7 @@ class _PostElementState extends State<PostElement> {
   }
 
   Future<void> _toggleLike() async {
-    final url = Uri.parse('http://10.0.2.2:9090/posts/likePost');
+    final url = Uri.parse('http://192.168.43.42:9090/posts/likePost');
     final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},

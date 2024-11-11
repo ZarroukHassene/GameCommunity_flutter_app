@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../entities/Comment.dart';
 import '../../entities/user.dart';
 
 class BlogDetailsScreen extends StatefulWidget {
@@ -39,18 +40,26 @@ class _BlogDetailsScreenState extends State<BlogDetailsScreen> {
     }
   }
 
-  // Fetch blog details including comments
   Future<void> _fetchBlogDetails() async {
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:9090/user/blog/${widget.blogId}'));
+      final response = await http.get(Uri.parse('http://192.168.43.42:9090/user/blog/${widget.blogId}'));
       print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
+
       if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+
         setState(() {
-          blog = json.decode(response.body);
-          comments = blog['comments'] ?? [];
+          blog = jsonData;
+          comments = []; // Clear existing comments
           isLoading = false;
         });
+
+        // Fetch full details for each comment ID
+        final List<dynamic> commentIds = jsonData['comments'] ?? [];
+        for (var commentId in commentIds) {
+          await _fetchCommentDetails(commentId);
+        }
       } else {
         throw Exception('Failed to load blog details');
       }
@@ -62,6 +71,28 @@ class _BlogDetailsScreenState extends State<BlogDetailsScreen> {
     }
   }
 
+// Fetch individual comment details by ID
+  Future<void> _fetchCommentDetails(String commentId) async {
+    try {
+      final response = await http.get(Uri.parse('http://192.168.43.42:9090/user/blog/comment/$commentId'));
+
+      if (response.statusCode == 200) {
+        final commentData = json.decode(response.body);
+
+        setState(() {
+          comments.add(Comment.fromJson(commentData)); // Add each comment to the list
+        });
+      } else {
+        print('Failed to load comment details for ID: $commentId');
+      }
+    } catch (error) {
+      print("Error fetching comment details: $error");
+    }
+  }
+
+
+
+
 
   // Add a comment to the blog
   Future<void> _addComment() async {
@@ -70,19 +101,17 @@ class _BlogDetailsScreenState extends State<BlogDetailsScreen> {
     try {
       User user = (await User.claimCurrentUser())!; // Load current user data
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:9090/user/comment'),
+        Uri.parse('http://192.168.43.42:9090/user/blog/comment'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'comment': commentController.text,
-          'userId': user.id, // Use the current user's ID
+          'text': commentController.text, // Use 'text' to match the backend
+          'userId': user.id,
           'blogId': widget.blogId,
         }),
-        //print the json
-
       );
       print(json.encode({
-        'comment': commentController.text,
-        'userId': user.id, // Use the current user's ID
+        'text': commentController.text, // Make sure it’s 'text' here as well
+        'userId': user.id,
         'blogId': widget.blogId,
       }));
       if (response.statusCode == 201) {
@@ -91,13 +120,13 @@ class _BlogDetailsScreenState extends State<BlogDetailsScreen> {
           commentController.clear();
         });
       } else {
-        //throw and print error response
         throw Exception('Failed to add comment');
       }
     } catch (error) {
       print("Error adding comment: $error");
     }
   }
+
 
   // Delete the blog if the current user is the owner
   Future<void> _deleteBlog() async {
@@ -108,7 +137,7 @@ class _BlogDetailsScreenState extends State<BlogDetailsScreen> {
 
     try {
       final response = await http.delete(
-        Uri.parse('http://10.0.2.2:9090/user/blog/${widget.blogId}'),
+        Uri.parse('http://192.168.43.42:9090/user/blog/${widget.blogId}'),
       );
 
       if (response.statusCode == 200) {
@@ -161,9 +190,10 @@ class _BlogDetailsScreenState extends State<BlogDetailsScreen> {
               child: ListView.builder(
                 itemCount: comments.length,
                 itemBuilder: (context, index) {
+                  final comment = comments[index] as Comment; // Cast each item to Comment
                   return ListTile(
-                    title: Text(comments[index]['comment'] ?? 'No comment'),
-                    subtitle: Text(comments[index]['user']?['username'] ?? 'Unknown user'),
+                    title: Text(comment.commentText),
+                    subtitle: Text(comment.username),
                   );
                 },
               ),

@@ -13,7 +13,7 @@ class SignUpPage extends StatelessWidget {
     final String password = _passwordController.text;
 
     // Use your local machine's IP address here instead of localhost
-    final url = Uri.parse('http://10.0.2.2:9090/user/'); // Use your actual local IP
+    final url = Uri.parse('http://192.168.43.42:9090/user/'); // Use your actual local IP
 
     try {
       final response = await http.post(

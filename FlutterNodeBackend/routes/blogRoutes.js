@@ -7,7 +7,8 @@ import {
     addComment, 
     deleteComment ,
     getAllBlogs,
-    getSingleBlog
+    getSingleBlog,
+    getCommentById
 } from "../controllers/UserBlogController.js"; // Make sure to include the correct .js extension
 
 const router = express.Router();
@@ -20,6 +21,7 @@ router.delete("/:blogId", deleteBlog); // Delete a specific blog
 // Routes for comment management
 router.post("/comment", addComment); // Add a comment to a blog
 router.delete("/comment/:commentId", deleteComment); // Delete a specific comment
+router.get("/comment/:commentId", getCommentById);
 // Define this route first to get all blogs
 router.get('/blogz', getAllBlogs);
 

@@ -37,7 +37,7 @@ class _TopicElementState extends State<TopicElement> {
   // Fetch the latest post for the topic
   Future<void> _fetchLatestPost() async {
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:9090/posts/${widget.topic.id}'));
+      final response = await http.get(Uri.parse('http://192.168.43.42:9090/posts/${widget.topic.id}'));
 
       if (response.statusCode == 200) {
         final List<dynamic> postsData = json.decode(response.body);
@@ -61,7 +61,7 @@ class _TopicElementState extends State<TopicElement> {
   Future<void> _toggleTopicStatus(BuildContext context, String field, bool newValue) async {
     try {
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:9090/topics/${widget.topic.id}'),
+        Uri.parse('http://192.168.43.42:9090/topics/${widget.topic.id}'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({field: newValue}),
       );

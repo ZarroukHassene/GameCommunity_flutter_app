@@ -29,7 +29,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> _updateUser() async {
-    final url = Uri.parse('http://10.0.2.2:9090/user/');
+    final url = Uri.parse('http://192.168.43.42:9090/user/');
     final response = await http.put(
       url,
       headers: {
@@ -44,7 +44,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     if (response.statusCode == 200) {
       String username = _usernameController.text;
-      final responsee = await http.get(Uri.parse('http://10.0.2.2:9090/user/find/$username'));
+      final responsee = await http.get(Uri.parse('http://192.168.43.42:9090/user/find/$username'));
 
       if (responsee.statusCode == 200) {
         print('Raw Response Body: ${responsee.body}');

@@ -44,7 +44,7 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
   // Fetch posts for the topic
   Future<void> _fetchPosts() async {
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:9090/posts/${widget.topic.id}'));
+      final response = await http.get(Uri.parse('http://192.168.43.42:9090/posts/${widget.topic.id}'));
 
       if (response.statusCode == 200) {
         final List<dynamic> postList = json.decode(response.body);
@@ -65,7 +65,7 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
   // Delete a post
   Future<void> _deletePost1(String postId) async {
     final response = await http.delete(
-      Uri.parse('http://10.0.2.2:9090/posts/$postId'),
+      Uri.parse('http://192.168.43.42:9090/posts/$postId'),
     );
 
     if (response.statusCode == 200) {
@@ -232,7 +232,7 @@ class _TopicDetailsViewState extends State<TopicDetailsView> {
 
       // Send a POST request to create a new post
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:9090/posts/${widget.topic.id}'),
+        Uri.parse('http://192.168.43.42:9090/posts/${widget.topic.id}'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'content': postContent,

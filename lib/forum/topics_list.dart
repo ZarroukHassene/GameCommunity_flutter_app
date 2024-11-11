@@ -49,7 +49,7 @@ class _TopicsListViewState extends State<TopicsListView> {
   // Fetch topics for the category
   Future<void> _fetchTopics() async {
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:9090/topics/${widget.category.id}'));
+      final response = await http.get(Uri.parse('http://192.168.43.42:9090/topics/${widget.category.id}'));
 
       if (response.statusCode == 200) {
         final List<dynamic> topicList = json.decode(response.body);
@@ -182,7 +182,7 @@ class _TopicsListViewState extends State<TopicsListView> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:9090/topics/${widget.category.id}'),
+        Uri.parse('http://192.168.43.42:9090/topics/${widget.category.id}'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'title': title,

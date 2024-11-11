@@ -14,7 +14,7 @@ class ProductProvider with ChangeNotifier {
   Future<void> addToCart(Product product) async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      final url = Uri.parse('http://10.0.2.2:9090/api/cart/add'); // Update with your API URL
+      final url = Uri.parse('http://192.168.43.42:9090/api/cart/add'); // Update with your API URL
 
       // Send POST request to the backend
       final response = await http.post(
@@ -52,7 +52,7 @@ class ProductProvider with ChangeNotifier {
   Future<void> addProduct(Product product) async {
     print("aaa " + product.name);
     try {
-      final url = Uri.parse('http://10.0.2.2:9090/api/products/'); // Update with your API URL
+      final url = Uri.parse('http://192.168.43.42:9090/api/products/'); // Update with your API URL
 
       // Send POST request to the backend
       final response = await http.post(
@@ -83,7 +83,7 @@ class ProductProvider with ChangeNotifier {
   // Remove a product both locally and from the backend
   Future<void> removeProduct(String id) async {
     try {
-      final url = Uri.parse('http://10.0.2.2:9090/api/products/$id'); // Update with your API URL
+      final url = Uri.parse('http://192.168.43.42:9090/api/products/$id'); // Update with your API URL
 
       final response = await http.delete(url);
 
@@ -102,7 +102,7 @@ class ProductProvider with ChangeNotifier {
   Future<void> fetchProducts() async {
 
     try {
-      final url = Uri.parse('http://10.0.2.2:9090/api/products'); // Update with your API URL
+      final url = Uri.parse('http://192.168.43.42:9090/api/products'); // Update with your API URL
       final response = await http.get(url);
 
       if (response.statusCode == 200) {

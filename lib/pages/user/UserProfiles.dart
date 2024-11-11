@@ -20,7 +20,7 @@ class _UserProfilesState extends State<UserProfiles> {
 
   // Function to fetch users from the API
   Future<void> fetchUsers() async {
-    final url = Uri.parse('http://10.0.2.2:9090/user');
+    final url = Uri.parse('http://192.168.43.42:9090/user');
 
     try {
       final response = await http.get(url);
@@ -40,7 +40,7 @@ class _UserProfilesState extends State<UserProfiles> {
 
   // Function to change the user's role
   Future<void> changeUserRole(String userId) async {
-    final url = Uri.parse('http://10.0.2.2:9090/user/changeRole');
+    final url = Uri.parse('http://192.168.43.42:9090/user/changeRole');
 
     try {
       final response = await http.post(
@@ -62,7 +62,7 @@ class _UserProfilesState extends State<UserProfiles> {
 
   // Function to ban the user
   Future<void> BanPlayer(String userId) async {
-    final url = Uri.parse('http://10.0.2.2:9090/user/banUser');
+    final url = Uri.parse('http://192.168.43.42:9090/user/banUser');
 
     try {
       final response = await http.post(

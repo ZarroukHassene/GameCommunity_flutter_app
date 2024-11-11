@@ -46,7 +46,7 @@ class _CategoriesListViewState extends State<CategoriesListView> {
   // Fetch categories from the API
   Future<void> _fetchCategories() async {
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:9090/categories'));
+      final response = await http.get(Uri.parse('http://192.168.43.42:9090/categories'));
 
       if (response.statusCode == 200) {
         final List<dynamic> categoryList = json.decode(response.body);
@@ -144,7 +144,7 @@ class _CategoriesListViewState extends State<CategoriesListView> {
   // API call to create a new category
   Future<void> _createCategory(String name) async {
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:9090/categories'),
+      Uri.parse('http://192.168.43.42:9090/categories'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'name': name}),
     );
@@ -189,7 +189,7 @@ class _CategoriesListViewState extends State<CategoriesListView> {
   // API call to edit a category
   Future<void> _editCategory(String id, String name) async {
     final response = await http.put(
-      Uri.parse('http://10.0.2.2:9090/categories/$id'),
+      Uri.parse('http://192.168.43.42:9090/categories/$id'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'name': name}),
     );
@@ -233,7 +233,7 @@ class _CategoriesListViewState extends State<CategoriesListView> {
 
   // API call to delete a category
   Future<void> _deleteCategory(String id) async {
-    final response = await http.delete(Uri.parse('http://10.0.2.2:9090/categories/$id'));
+    final response = await http.delete(Uri.parse('http://192.168.43.42:9090/categories/$id'));
 
     if (response.statusCode == 200) {
       _fetchCategories(); // Refresh categories
