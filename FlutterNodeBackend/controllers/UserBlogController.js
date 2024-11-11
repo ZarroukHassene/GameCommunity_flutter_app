@@ -33,18 +33,14 @@ export const createBlog = async (req, res) => {
 // Get all blogs of the logged-in user
 export const getUserBlogs = async (req, res) => {
     try {
-        const userId = req.userId; // Get the userId from the request context
-
-        const user = await User.findById(userId).populate("blogs");
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
+        const blog = await Blog.findById(req.params.blogId).populate('user');
+        if (!blog) {
+          return res.status(404).json({ message: 'Blog not found' });
         }
-
-        res.status(200).json(user.blogs);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Error fetching blogs" });
-    }
+        res.status(200).json(blog);
+      } catch (error) {
+        res.status(500).json({ message: 'Error fetching blog details', error: error.message });
+      }
 };
 
 // Update a blog (only allowed for the owner of the blog)
@@ -106,8 +102,8 @@ export const deleteBlog = async (req, res) => {
 // Add a comment to a blog based on the user
 export const addComment = async (req, res) => {
     try {
-        const { blogId, text } = req.body;
-        const userId = req.userId;
+        const { blogId, text, userId } = req.body;
+        //const userId = req.userId;
 
         const blog = await Blog.findById(blogId);
         if (!blog) {
@@ -166,12 +162,27 @@ export const deleteComment = async (req, res) => {
   
 };
 
-export const getAllBlogs = async (req, res) => {
+export function getAllBlogs(req,res){
+    Blog
+    .find({})
+    .then(docs=>{
+        res.status(200).json(docs);
+    })
+    .catch(err=>{
+        res.status(500).json({error:err});
+    });
+};
+
+// Controller function to get a single blog by ID
+export const getSingleBlog = async (req, res) => {
     try {
-      const blogs = await Blog.find().populate('user', 'username'); // Optional: Populate user with username
-      res.status(200).json(blogs);
+      const blog = await Blog.findById(req.params.blogId).populate('user', 'username');
+      if (!blog) {
+        return res.status(404).json({ message: 'Blog not found' });
+      }
+      res.status(200).json(blog);
     } catch (error) {
-      console.error('Error fetching blogs:', error);
-      res.status(500).json({ error: 'Failed to load blogs' });
+      res.status(500).json({ message: 'Error fetching blog detailsssssssss', error: error.message });
     }
   };
+  

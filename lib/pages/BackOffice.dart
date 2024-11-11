@@ -161,6 +161,14 @@ class _BackOfficeState extends State<BackOffice> {
                 );
               },
             ),
+            _buildGridButton(
+              context,
+              icon: Icons.article,
+              label: 'Blog',
+              onTap: () {
+                Navigator.pushNamed(context, '/Blogs');  // Fixed: Using named route
+              },
+            ),
 
           ],
         ),
