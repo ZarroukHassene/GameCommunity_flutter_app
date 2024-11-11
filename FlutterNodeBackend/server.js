@@ -10,9 +10,9 @@ import topicRouter from './routes/topicrouter.js';
 import topicCategoryRouter from './routes/topiccategoryrouter.js';
 import userRouter from './routes/userrouter.js';
 import productRouter from './routes/Products.js';
-// import savedProductRouter from './routes/SavedProductRoutes.js'
-import BlogRoutes from './routes/BlogRoutes.js'
 
+import BlogRoutes from './routes/BlogRoutes.js'
+import cartRouter from './routes/CartRoutes.js';
 const app = express();
 const port = process.env.PORT || 9090;
 const databaseName = 'GameFanAppDB';
@@ -30,6 +30,7 @@ mongoose
     console.log(err);
   });
 
+
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
@@ -43,8 +44,9 @@ app.use('/posts', postRouter);
 app.use('/topics', topicRouter);
 app.use('/categories', topicCategoryRouter);
 app.use('/user', userRouter);
-//app.use('/api/card', savedProductRoutes);
+// app.use('/api/card', savedProductRoutes);
 app.use('/user/blog', BlogRoutes); 
+app.use('/api/cart', cartRouter);
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);

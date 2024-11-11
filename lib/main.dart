@@ -43,6 +43,7 @@ class MyApp extends StatelessWidget {
         '/Blogs': (context) => BlogScreen(),
     '/ShopPage': (context) => const ShopPage(), // Define the route for ShopPage
 
+
       },
     ));
   }

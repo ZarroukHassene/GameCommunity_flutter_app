@@ -2,13 +2,53 @@ import 'package:flutter/material.dart';
 import 'product.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductProvider with ChangeNotifier {
   List<Product> _products = [];
-
+  List<Product> _cartItems = [];
   List<Product> get products => _products;
-
+  List<Product> get cartItems => _cartItems;
   // Add a product to both local state and the backend
+
+  Future<void> addToCart(Product product) async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final url = Uri.parse('http://10.0.2.2:9090/api/cart/add'); // Update with your API URL
+
+      // Send POST request to the backend
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          "userId": prefs.getString('user_id'),
+          "productId": product.id,
+          "quantity": 1  // Explicitly add quantity here
+        }),
+      );
+
+      print("the user id is " + prefs.getString('user_id').toString());
+      print("the prod id is " + product.id.toString());
+
+      if (response.statusCode == 200) {
+        // If the product is added to the cart successfully
+        print('Product added to cart successfully');
+      } else {
+        print('Failed to add product to cart');
+      }
+    } catch (e) {
+      print('Error adding product: $e');
+    }
+
+    // Add the product to the local cart items (for immediate UI update)
+    _cartItems.add(product);
+    notifyListeners();
+  }
+
+
+
   Future<void> addProduct(Product product) async {
     print("aaa " + product.name);
     try {

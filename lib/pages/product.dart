@@ -36,7 +36,7 @@ class Product {
   // To create a product from JSON (useful for API responses)
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'] ?? '', // Provide a default empty string if null
+      id: json['_id'] ?? '', // Provide a default empty string if null
       name: json['name'] ?? '', // Provide a default empty string if null
       price: (json['price'] as num?)?.toDouble() ?? 0.0, // Ensure price is a double with a default of 0.0
       imageUrl: json['imageUrl'], // imageUrl is nullable

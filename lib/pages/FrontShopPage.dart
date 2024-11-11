@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'Provider.dart';
-import 'product.dart';
+import 'product.dart'; // Your product model file
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'dart:convert'; // For encoding data to JSON
+import 'CartPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FrontShopPage extends StatefulWidget {
   const FrontShopPage({Key? key}) : super(key: key);
@@ -15,6 +15,7 @@ class FrontShopPage extends StatefulWidget {
 }
 
 class _FrontShopState extends State<FrontShopPage> {
+  late String ID;
   // Fetch products when the page loads
   @override
   void initState() {
@@ -39,16 +40,29 @@ class _FrontShopState extends State<FrontShopPage> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shop'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CartPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Consumer<ProductProvider>(  // Consumer listens to changes in ProductProvider
           builder: (context, productProvider, child) {
+            // Fetch products each time the Consumer is built
             productProvider.fetchProducts();
             return GridView.builder(
               itemCount: productProvider.products.length,
@@ -76,10 +90,12 @@ class _FrontShopState extends State<FrontShopPage> {
                             child: product.imageUrl.isNotEmpty
                                 ? Image.file(
                               File(product.imageUrl),
+
                               fit: BoxFit.cover,
                               width: double.infinity,
                               errorBuilder: (context, error, stackTrace) {
                                 return const Icon(Icons.broken_image, size: 50);
+
                               },
                             )
                                 : const Icon(Icons.image, size: 50), // Placeholder if no image
@@ -99,21 +115,16 @@ class _FrontShopState extends State<FrontShopPage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Text(
-                          '\$${product.price}',
-                          style: const TextStyle(
-                            fontSize: 14.0,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.green,
-                          ),
+                        padding: const EdgeInsets.all(8.0),
+                        child: ElevatedButton(
+                          onPressed: () {
+print("prod that should be added to cart "+product.id.toString());
+                            // Add item to cart
+                            Provider.of<ProductProvider>(context, listen: false)
+                                .addToCart(product); // Implement this method in your ProductProvider
+                          },
+                          child: const Text('Add to Cart'),
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.add_alarm),
-                        onPressed: () {
-                          productProvider.removeProduct(product.id);
-                        },
                       ),
                     ],
                   ),
@@ -123,94 +134,6 @@ class _FrontShopState extends State<FrontShopPage> {
           },
         ),
       ),
-
-    );
-  }
-}
-
-// ProductCreateDialog and the rest of the code remains unchanged
-
-class ProductCreateDialog extends StatefulWidget {
-  @override
-  _ProductCreateDialogState createState() => _ProductCreateDialogState();
-}
-
-class _ProductCreateDialogState extends State<ProductCreateDialog> {
-  final _nameController = TextEditingController();
-  final _priceController = TextEditingController();
-  File? _image; // Store the selected image file
-  final ImagePicker _picker = ImagePicker(); // ImagePicker instance
-
-  // Method to pick an image from the gallery
-  Future<void> _pickImage() async {
-    try {
-      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        setState(() {
-          _image = File(pickedFile.path); // Store the selected image file
-        });
-      } else {
-        // User canceled the picker
-        print('No image selected.');
-      }
-    } catch (e) {
-      print('Error picking image: $e');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Create Product'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _nameController,
-            decoration: const InputDecoration(labelText: 'Product Name'),
-          ),
-          TextField(
-            controller: _priceController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Price'),
-          ),
-          // Button to trigger image picking
-          ElevatedButton(
-            onPressed: _pickImage,
-            child: const Text('Pick Image'),
-          ),
-          // Show the selected image (if any)
-          if (_image != null)
-            Image.file(
-              _image!,
-              height: 100,
-              width: 100,
-              fit: BoxFit.cover,
-            ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: () {
-            final product = Product(
-              id: DateTime.now().toString(),
-              name: _nameController.text,
-              price: double.tryParse(_priceController.text) ?? 0.0,
-              imageUrl: _image?.path ?? '', // Use the selected image path
-            );
-
-            Provider.of<ProductProvider>(context, listen: false).addProduct(product);
-            Navigator.of(context).pop();
-          },
-          child: const Text('Create'),
-        ),
-      ],
     );
   }
 }
