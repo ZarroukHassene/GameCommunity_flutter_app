@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gamefan_app/pages/HomePage.dart';
+import 'package:gamefan_app/pages/BackOffice.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:gamefan_app/entities/user.dart';
@@ -77,12 +78,12 @@ class SignInPage extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildSignInButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
         String username = _usernameController.text;
         String password = _passwordController.text;
-        String role = 'player';
 
         final url = Uri.parse('http://10.0.2.2:9090/user/login');
 
@@ -93,7 +94,6 @@ class SignInPage extends StatelessWidget {
             body: jsonEncode({
               'username': username,
               'password': password,
-              'role': role,
             }),
           );
 
@@ -101,23 +101,53 @@ class SignInPage extends StatelessWidget {
             final responseBody = jsonDecode(response.body);
             print('Response body parsed: $responseBody');
 
+            // Check if the user is banned
+            if (responseBody['banned'] == true) {
+              // Show banned popup
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Banned'),
+                    content: Text('Your account has been banned. Please contact support.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('OK'),
+                      ),
+                    ],
+                  );
+                },
+              );
+              return; // Stop further processing
+            }
+
             User newUser = User(
               id: responseBody['_id'],
               username: responseBody['username'],
               email: responseBody['email'],
               role: responseBody['role'],
             );
-            print('Response 123: $newUser');
+            print('User created: $newUser');
 
+            // Save the user details
             User.saveUser(newUser);
 
-            if (newUser != null) {
+            // Check the user's role and navigate accordingly
+            if (newUser.role == 'admin') {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => HomePage()),
+                MaterialPageRoute(builder: (context) => BackOffice()), // Navigate to BackOffice
+              );
+            } else if (newUser.role == 'player') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage()), // Navigate to HomePage
               );
             } else {
-              print('User is not logged in.');
+              print('User role is not recognized.');
             }
           } else {
             // Show a pop-up with the error message

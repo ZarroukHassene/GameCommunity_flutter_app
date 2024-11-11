@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
-<<<<<<< Updated upstream
-import 'package:gamefan_app/pages/blog/BlogScreen.dart';
-=======
-import 'package:gamefan_app/pages/FrontShopPage.dart';
->>>>>>> Stashed changes
 import 'package:gamefan_app/pages/user/ProfilePage.dart';
+import 'package:gamefan_app/pages/user/UserProfiles.dart';
 import 'package:gamefan_app/pages/user/SignInPage.dart';
 import '../entities/user.dart';
 import 'ShopPage.dart';
 
-class HomePage extends StatefulWidget {
-  HomePage({Key? key}) : super(key: key);
+class BackOffice extends StatefulWidget {
+  BackOffice({Key? key}) : super(key: key);
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _BackOfficeState createState() => _BackOfficeState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _BackOfficeState extends State<BackOffice> {
   late User? newUser;
   bool isLoading = true;
 
@@ -42,7 +38,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text('Back Office'),
         leading: Builder(
           builder: (context) => IconButton(
             icon: Icon(Icons.menu),
@@ -58,7 +54,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Colors.red,
               ),
               child: Text(
                 'Menu',
@@ -90,20 +86,8 @@ class _HomePageState extends State<HomePage> {
                 }
               },
             ),
-            ListTile(
-              leading: Icon(Icons.forum),
-              title: Text('Forum'),
-              onTap: () {
-                Navigator.pushNamed(context, '/ForumHome');
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.article),
-              title: Text('Blogs'),
-              onTap: () {
-                Navigator.pushNamed(context, '/Blogs');  // Fixed: Using named route
-              },
-            ),
+
+
             ListTile(
               leading: Icon(Icons.shopping_cart),
               title: Text('Shop'),
@@ -114,20 +98,7 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-            ListTile(
-              leading: Icon(Icons.sports_esports),
-              title: Text('Matches'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.help),
-              title: Text('Assistance'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
+
             ListTile(
               leading: Icon(Icons.logout),
               title: Text('Logout'),
@@ -138,7 +109,7 @@ class _HomePageState extends State<HomePage> {
 
                   MaterialPageRoute(builder: (context) => SignInPage()),
                 );
-              },
+                },
             ),
           ],
         ),
@@ -165,28 +136,13 @@ class _HomePageState extends State<HomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ProfilePage(user: newUser!),
+                      builder: (context) => UserProfiles(),
                     ),
                   );
                 }
               },
             ),
-            _buildGridButton(
-              context,
-              icon: Icons.forum,
-              label: 'Forum',
-              onTap: () {
-                Navigator.pushNamed(context, '/ForumHome');
-              },
-            ),
-            _buildGridButton(
-              context,
-              icon: Icons.article,
-              label: 'Blog',
-              onTap: () {
-                Navigator.pushNamed(context, '/Blogs');  // Fixed: Using named route
-              },
-            ),
+
             _buildGridButton(
               context,
               icon: Icons.shopping_cart,
@@ -194,22 +150,11 @@ class _HomePageState extends State<HomePage> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => FrontShopPage()),
+                  MaterialPageRoute(builder: (context) => ShopPage()),
                 );
               },
             ),
-            _buildGridButton(
-              context,
-              icon: Icons.sports_esports,
-              label: 'Matches',
-              onTap: () {},
-            ),
-            _buildGridButton(
-              context,
-              icon: Icons.help,
-              label: 'Assistance',
-              onTap: () {},
-            ),
+
           ],
         ),
       ),
@@ -222,7 +167,7 @@ class _HomePageState extends State<HomePage> {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.blueAccent,
+          color: Colors.red,
           borderRadius: BorderRadius.circular(8.0),
           boxShadow: [
             BoxShadow(

@@ -1,24 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:gamefan_app/pages/HomePage.dart';
 import 'package:gamefan_app/pages/blog/BlogScreen.dart';
 import 'entities/user.dart';
 import 'pages/user/signInPage.dart';
 import 'pages/user/signUpPage.dart';
-import 'forum/categories_list.dart'; // Ensure the correct path
+import 'forum/categories_list.dart';
+import '/pages/ShopPage.dart'; // Correct path to ShopPage
+import '/pages/Provider.dart'; // Correct path to Provider.dart
+import 'package:gamefan_app/pages/Provider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ProductProvider(), // Initialize ProductProvider
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+<<<<<<< Updated upstream
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+=======
+    return ChangeNotifierProvider(
+        create: (context) => ProductProvider()..fetchProducts(),
+    child: MaterialApp(
+>>>>>>> Stashed changes
       title: 'Your App Title',
+
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
       ),
+<<<<<<< Updated upstream
       // Home page is initially the SignInPage
       home: SignInPage(),
       routes: {
@@ -27,7 +44,17 @@ class MyApp extends StatelessWidget {
         '/ForumHome': (context) => CategoriesListView(),
         '/HomePage': (context) => HomePage(),
         '/Blogs': (context) => BlogScreen(),
+=======
+      home: SignInPage(), // Initially, show the SignInPage
+      routes: {
+        '/signUp': (context) => SignUpPage(),
+        '/signInPage': (context) => SignInPage(),
+        '/ForumHome': (context) => CategoriesListView(),
+        '/HomePage': (context) => HomePage(),
+        '/ShopPage': (context) => const ShopPage(), // Define the route for ShopPage
+
+>>>>>>> Stashed changes
       },
-    );
+    ));
   }
 }
