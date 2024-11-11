@@ -142,7 +142,14 @@ class _BackOfficeState extends State<BackOffice> {
                 }
               },
             ),
-
+            _buildGridButton(
+              context,
+              icon: Icons.forum,
+              label: 'Forum',
+              onTap: () {
+                Navigator.pushNamed(context, '/ForumHome');
+              },
+            ),
             _buildGridButton(
               context,
               icon: Icons.shopping_cart,

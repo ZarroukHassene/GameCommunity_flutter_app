@@ -22,20 +22,17 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-<<<<<<< Updated upstream
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-=======
+
     return ChangeNotifierProvider(
         create: (context) => ProductProvider()..fetchProducts(),
     child: MaterialApp(
->>>>>>> Stashed changes
+
       title: 'Your App Title',
 
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
       ),
-<<<<<<< Updated upstream
+
       // Home page is initially the SignInPage
       home: SignInPage(),
       routes: {
@@ -44,16 +41,8 @@ class MyApp extends StatelessWidget {
         '/ForumHome': (context) => CategoriesListView(),
         '/HomePage': (context) => HomePage(),
         '/Blogs': (context) => BlogScreen(),
-=======
-      home: SignInPage(), // Initially, show the SignInPage
-      routes: {
-        '/signUp': (context) => SignUpPage(),
-        '/signInPage': (context) => SignInPage(),
-        '/ForumHome': (context) => CategoriesListView(),
-        '/HomePage': (context) => HomePage(),
-        '/ShopPage': (context) => const ShopPage(), // Define the route for ShopPage
+    '/ShopPage': (context) => const ShopPage(), // Define the route for ShopPage
 
->>>>>>> Stashed changes
       },
     ));
   }

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-<<<<<<< Updated upstream
 import 'package:gamefan_app/pages/blog/BlogScreen.dart';
-=======
+
 import 'package:gamefan_app/pages/FrontShopPage.dart';
->>>>>>> Stashed changes
+
 import 'package:gamefan_app/pages/user/ProfilePage.dart';
 import 'package:gamefan_app/pages/user/SignInPage.dart';
 import '../entities/user.dart';
