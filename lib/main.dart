@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:gamefan_app/pages/HomePage.dart';
 import 'package:gamefan_app/pages/blog/BlogScreen.dart';
-import 'entities/user.dart';
 import 'pages/user/signInPage.dart';
 import 'pages/user/signUpPage.dart';
 import 'forum/categories_list.dart';
 import '/pages/ShopPage.dart'; // Correct path to ShopPage
 import '/pages/Provider.dart'; // Correct path to Provider.dart
-import 'package:gamefan_app/pages/Provider.dart';
+
 
 void main() {
   runApp(
