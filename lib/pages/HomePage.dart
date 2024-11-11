@@ -109,7 +109,7 @@ class _HomePageState extends State<HomePage> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ShopPage()),
+                  MaterialPageRoute(builder: (context) => FrontShopPage()),
                 );
               },
             ),
