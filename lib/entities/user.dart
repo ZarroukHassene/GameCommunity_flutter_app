@@ -37,13 +37,12 @@ class User {
   // Create a User object from JSON data
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['_id'] as String? ?? '', // Default to empty string if null
-      email: json['email'] as String? ?? 'Anonymous',
-      username: json['username'] as String? ?? 'Anonymous',
-      role: json['role'] as String? ?? 'player', // Default to "player" if null
+      id: json['_id'] as String,
+      email: json['email'] as String,
+      username: json['username'] as String,
+      role: json['role'] ?? 'player',
     );
   }
-
   // Convert a User object to JSON
   Map<String, dynamic> toJson() {
     return {

@@ -1,16 +1,17 @@
-import 'user.dart';
+import 'package:gamefan_app/entities/user.dart';  // Ensure this import
+import 'package:gamefan_app/pages/user/user_service.dart';
 
 class Team {
   final String id;
   final String? name;
   final String? logo;
-  final List<String> members; // Store member IDs as strings
+  final List<String> memberIds;  // Store member IDs as strings
 
   Team({
     required this.id,
     this.name,
     this.logo,
-    this.members = const [],
+    this.memberIds = const [],
   });
 
   factory Team.fromJson(Map<String, dynamic> json) {
@@ -18,9 +19,7 @@ class Team {
       id: json['_id'] as String,
       name: json['name'] as String?,
       logo: json['logo'] as String?,
-      members: json['members'] != null
-          ? (json['members'] as List<dynamic>).cast<String>() // Safely handle member IDs
-          : [],
+      memberIds: List<String>.from(json['members'] ?? []),  // Store member IDs as strings
     );
   }
 }

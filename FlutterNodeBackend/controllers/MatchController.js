@@ -2,7 +2,8 @@ import Match from '../models/Match.js';
 import Team from '../models/Team.js';
 
 // Get all matches
-const getAllMatches = async (req, res) => {
+  
+  export const getAllMatches = async (req, res) => {
     try {
       const matches = await Match.find()
         .populate('teamA') // Populate full details for teamA
@@ -14,10 +15,6 @@ const getAllMatches = async (req, res) => {
       res.status(500).json({ error: "Failed to fetch matches" });
     }
   };
-  
-  module.exports = { getAllMatches };
-  
-
 // Add a new match
 export async function addMatch(req, res) {
   try {

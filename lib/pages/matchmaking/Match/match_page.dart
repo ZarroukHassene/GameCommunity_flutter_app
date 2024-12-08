@@ -1,9 +1,9 @@
-import 'dart:convert'; // Import for JSON decoding
+import 'dart:convert'; // For JSON decoding
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // Import for HTTP requests
+import 'package:http/http.dart' as http;
 import 'package:gamefan_app/entities/Match.dart';
-import '../../../entities/Team.dart';
-import '../../../entities/user.dart';
+import 'package:gamefan_app/entities/Team.dart';
+import 'package:gamefan_app/entities/user.dart';
 
 class MatchPage extends StatelessWidget {
   final Match match;
@@ -11,7 +11,7 @@ class MatchPage extends StatelessWidget {
   const MatchPage({Key? key, required this.match}) : super(key: key);
 
   Future<User> getUserById(String id) async {
-    final response = await http.get(Uri.parse("http://your-api.com/users/$id"));
+    final response = await http.get(Uri.parse("http://10.0.2.2:9090/user/id/$id"));
     if (response.statusCode == 200) {
       return User.fromJson(jsonDecode(response.body));
     } else {
@@ -63,9 +63,9 @@ class MatchPage extends StatelessWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              _buildTeamLineup("Team A", match.teamA.members),
+              _buildTeamLineup("Team A", match.teamA.memberIds.cast<String>()),
               const SizedBox(height: 16),
-              _buildTeamLineup("Team B", match.teamB.members),
+              _buildTeamLineup("Team B", match.teamB.memberIds.cast<String>()),
             ],
           ),
         ),
@@ -107,22 +107,36 @@ class MatchPage extends StatelessWidget {
         const SizedBox(height: 8),
         memberIds.isEmpty
             ? const Text("No members in this team")
-            : Column(
-          children: memberIds.map((id) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
-              child: Row(
-                children: [
-                  const Icon(Icons.person),
-                  const SizedBox(width: 8),
-                  Text(
-                    "ID: $id", // Display the member ID
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
+            : FutureBuilder<List<User>>(
+          future: Future.wait(
+            memberIds.map((id) => getUserById(id)).toList(),
+          ),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text("Error loading users: ${snapshot.error}");
+            } else {
+              final users = snapshot.data!;
+              return Column(
+                children: users.map((user) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.person),
+                        const SizedBox(width: 8),
+                        Text(
+                          user.username,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              );
+            }
+          },
         ),
       ],
     );

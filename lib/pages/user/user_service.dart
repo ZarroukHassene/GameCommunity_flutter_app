@@ -17,4 +17,18 @@ class UserService {
       throw Exception("Failed to load users: ${response.statusCode}");
     }
   }
+
+  Future<User> getUserById(String id) async {
+    final response = await http.get(Uri.parse("http://10.0.2.2:9090/user/id/$id"));
+    if (response.statusCode == 200) {
+      return User.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception("Failed to fetch user");
+    }
+  }
+  Future<String> getUsername(String id) async{
+    User user = await getUserById(id);
+    return  user.username;
+  }
+
 }

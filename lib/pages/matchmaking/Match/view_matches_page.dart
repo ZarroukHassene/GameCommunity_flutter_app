@@ -26,13 +26,12 @@ class _ViewMatchesPageState extends State<ViewMatchesPage> {
   Future<void> fetchMatches() async {
     try {
       final fetchedMatches = await matchService.getMatches();
-      print("Fetched matches: $fetchedMatches"); // Debug: Log raw response
       setState(() {
         matches = fetchedMatches;
         isLoading = false;
       });
     } catch (e) {
-      print("Error: $e"); // Debug: Log error
+      print("Error: $e");
       setState(() {
         isLoading = false;
       });
@@ -41,7 +40,6 @@ class _ViewMatchesPageState extends State<ViewMatchesPage> {
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

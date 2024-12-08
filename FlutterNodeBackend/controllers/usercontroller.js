@@ -20,6 +20,22 @@ export function getAll(req,res){
   });
 };
 
+
+export const getUserById = async (req, res) => {
+  try {
+    const { id } = req.params; // Get the ID from the request parameters
+    const user = await User.findById(id); // Find the user by ID
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json(user); // Return the user data
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch user' });
+  }
+};
+
 export async function toggleUserRole(req, res) {
   try {
     const { _id } = req.body;

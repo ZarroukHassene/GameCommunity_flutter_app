@@ -54,9 +54,9 @@ class TeamPage extends StatelessWidget {
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
                 ),
-                itemCount: team.members.length,
+                itemCount: team.memberIds.length,
                 itemBuilder: (context, index) {
-                  final member = team.members[index];
+                  final member = team.memberIds[index];
                   return Column(
                     children: [
                       // Placeholder Avatar for member

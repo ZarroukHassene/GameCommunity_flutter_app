@@ -4,7 +4,7 @@
 import express from 'express';
 import { body } from 'express-validator';
 const router = express.Router();
-import {getAll,getOnce,AddOnce, Sauthentifier ,findByUserName, deleteOnce,toggleUserBan ,toggleUserRole , updateUser} from '../controllers/usercontroller.js';//imporeter les fonction créer dans le controlleur
+import {getAll,getOnce,AddOnce, Sauthentifier ,findByUserName, deleteOnce,toggleUserBan ,toggleUserRole , updateUser , getOnceById} from '../controllers/usercontroller.js';//imporeter les fonction créer dans le controlleur
 import multer from '../middlewares/multer-config.js';//importer la configuration de multer
 router.use(express.json());//pour analyser (parsing )les requetes application/json
 /**
@@ -34,7 +34,8 @@ router.route('/:username')
 .delete(deleteOnce);
 router.route('/find/:username')
 .get(findByUserName);
-
+router.route('/id/:id')
+.get(getOnceById)
 router.route('/login')
 .post(Sauthentifier);
 

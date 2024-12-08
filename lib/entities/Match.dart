@@ -16,8 +16,8 @@ class Match {
   factory Match.fromJson(Map<String, dynamic> json) {
     return Match(
       id: json['_id'] as String,
-      teamA: Team.fromJson(json['teamA']),
-      teamB: Team.fromJson(json['teamB']),
+      teamA: Team.fromJson(json['teamA']), // Parse teamA as Team object
+      teamB: Team.fromJson(json['teamB']), // Parse teamB as Team object
       date: DateTime.parse(json['date']),
     );
   }

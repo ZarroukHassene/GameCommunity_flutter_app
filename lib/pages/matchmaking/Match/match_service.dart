@@ -13,7 +13,6 @@ class MatchService {
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
-      print("Fetched matches: $data"); // Log the raw JSON response
       return data.map((matchJson) => Match.fromJson(matchJson)).toList();
     } else {
       throw Exception("Failed to load matches: ${response.statusCode}");
