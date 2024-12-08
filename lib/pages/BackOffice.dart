@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gamefan_app/pages/matchmaking/Match/view_matches_page.dart';
+import 'package:gamefan_app/pages/matchmaking/Team/add_member_page.dart';
+import 'package:gamefan_app/pages/matchmaking/Team/create_team_page.dart';
+import 'package:gamefan_app/pages/matchmaking/Team/view_teams_page.dart';
 import 'package:gamefan_app/pages/user/ProfilePage.dart';
 import 'package:gamefan_app/pages/user/UserProfiles.dart';
 import 'package:gamefan_app/pages/user/SignInPage.dart';
@@ -87,6 +91,27 @@ class _BackOfficeState extends State<BackOffice> {
               },
             ),
 
+
+            ListTile(
+              leading: Icon(Icons.groups), // Replace with any of the icons mentioned above
+              title: Text('Teams'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ViewTeamsPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.groups), // Replace with any of the icons mentioned above
+              title: Text('Matches'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ViewMatchesPage()),
+                );
+              },
+            ),
 
             ListTile(
               leading: Icon(Icons.shopping_cart),

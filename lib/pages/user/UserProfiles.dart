@@ -96,7 +96,7 @@ class _UserProfilesState extends State<UserProfiles> {
           User user = users[index];
           return ListTile(
             title: Text(user.username),
-            subtitle: Text('Email: ${user.email}\nRole: ${user.role}'),
+            subtitle: Text('Email: ${user.email}\nRole:'),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

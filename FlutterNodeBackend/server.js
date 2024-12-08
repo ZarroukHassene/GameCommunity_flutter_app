@@ -3,9 +3,11 @@ import mongoose from 'mongoose';
 import morgan from 'morgan';
 import cors from 'cors';
 import { notfound } from './middlewares/notFound.js';
-
+import uploadRoutes from "./routes/upload.js";
 // Import routes
 import postRouter from './routes/postrouter.js';
+import TeamRouter from './routes/TeamRoute.js';
+import MatchRouter from './routes/MatchRoute.js';
 import topicRouter from './routes/topicrouter.js';
 import topicCategoryRouter from './routes/topiccategoryrouter.js';
 import userRouter from './routes/userrouter.js';
@@ -44,9 +46,16 @@ app.use('/posts', postRouter);
 app.use('/topics', topicRouter);
 app.use('/categories', topicCategoryRouter);
 app.use('/user', userRouter);
+app.use('/Team', TeamRouter);
+app.use('/Match', MatchRouter);
 // app.use('/api/card', savedProductRoutes);
 app.use('/user/blog', BlogRoutes); 
 app.use('/api/cart', cartRouter);
+
+// Serve static files
+app.use("/uploads", express.static("uploads")); // Serve the 'uploads' folder
+app.use(uploadRoutes);
+
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);

@@ -8,6 +8,8 @@ import 'forum/categories_list.dart';
 import '/pages/ShopPage.dart'; // Correct path to ShopPage
 import '/pages/Provider.dart'; // Correct path to Provider.dart
 
+import 'package:gamefan_app/pages/matchmaking/Team/create_team_page.dart'; // Correct path to Provider.dart
+
 
 void main() {
   runApp(
@@ -40,6 +42,7 @@ class MyApp extends StatelessWidget {
         '/ForumHome': (context) => CategoriesListView(),
         '/HomePage': (context) => HomePage(),
         '/Blogs': (context) => BlogScreen(),
+        '/Team': (context) => CreateTeamPage(),
     '/ShopPage': (context) => const ShopPage(), // Define the route for ShopPage
 
 
