@@ -14,11 +14,17 @@ class ProductProvider with ChangeNotifier {
   List<Product> get filteredProducts => _filteredProducts;
   List<Product> get cartItems => _cartItems;
   List<Product> _cases = []; // List to store all created cases
-
+  List<Product> _selectedProducts = [];
 
   // Getter for cases
   List<Product> get cases => _cases;
 
+  List<Product> get selectedProducts => _selectedProducts;
+
+  void setSelectedProducts(List<Product> products) {
+    _selectedProducts = products;
+    notifyListeners();
+  }
   // Add a product to both local state and the backend
   Future<void> addToCart(Product product) async {
     try {

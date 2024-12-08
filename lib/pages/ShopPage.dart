@@ -174,11 +174,11 @@ class OpenCaseDialog extends StatelessWidget {
       title: const Text('Surprise Box!'),
       content: Consumer<ProductProvider>(
         builder: (context, productProvider, child) {
-          final randomProduct = productProvider.createRandomCase();
+          final randomProduct = ProductProvider().createRandomCase(ProductProvider().selectedProducts);
 
           if (randomProduct == null) {
             return const Text("No products available.");
-          } else {
+          } else {fe
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -213,7 +213,7 @@ class CreateRandomCaseDialog extends StatefulWidget {
 }
 
 class _CreateRandomCaseDialogState extends State<CreateRandomCaseDialog> {
-  List<Product> _selectedProducts = [];
+   List<Product> _selectedProducts = [];
 
   @override
   Widget build(BuildContext context) {
