@@ -4,6 +4,7 @@ import 'match_service.dart';
 import 'package:gamefan_app/entities/Match.dart';
 import 'package:gamefan_app/entities/Team.dart';
 import 'match_page.dart';
+import 'create_match_page.dart'; // Import the CreateMatchPage
 
 class ViewMatchesPage extends StatefulWidget {
   const ViewMatchesPage({Key? key}) : super(key: key);
@@ -67,6 +68,22 @@ class _ViewMatchesPageState extends State<ViewMatchesPage> {
             child: _buildMatchCard(match),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navigate to CreateMatchPage
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CreateMatchPage(),
+            ),
+          ).then((value) {
+            // Refresh the matches list when returning from CreateMatchPage
+            fetchMatches();
+          });
+        },
+        child: const Icon(Icons.add),
+        tooltip: "Create a New Match",
       ),
     );
   }

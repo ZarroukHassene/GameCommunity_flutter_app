@@ -19,7 +19,21 @@ class Team {
       id: json['_id'] as String,
       name: json['name'] as String?,
       logo: json['logo'] as String?,
-      memberIds: List<String>.from(json['members'] ?? []),  // Store member IDs as strings
+      memberIds: json['members'] is List
+          ? List<String>.from(json['members'].map((member) {
+        if (member is String) {
+          // Member is already an ID string
+          return member;
+        } else if (member is Map<String, dynamic> && member['_id'] is String) {
+          // Member is an object with an "_id" field
+          return member['_id'] as String;
+        } else {
+          throw Exception("Invalid member format: $member");
+        }
+      }))
+          : [],
     );
   }
+
+
 }
