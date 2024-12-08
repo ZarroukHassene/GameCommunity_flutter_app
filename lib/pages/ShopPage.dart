@@ -178,7 +178,7 @@ class OpenCaseDialog extends StatelessWidget {
 
           if (randomProduct == null) {
             return const Text("No products available.");
-          } else {fe
+          } else {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
