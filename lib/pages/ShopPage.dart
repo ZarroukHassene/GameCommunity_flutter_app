@@ -26,7 +26,8 @@ class _ShopPageState extends State<ShopPage> {
   // Function to handle image uploading
   Future<void> _uploadImage(BuildContext context, Product product) async {
     final ImagePicker picker = ImagePicker();
-    final XFile? pickedImage = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedImage = await picker.pickImage(
+        source: ImageSource.gallery);
 
     if (pickedImage != null) {
       // Update the product's imageUrl with the selected image path
@@ -39,6 +40,9 @@ class _ShopPageState extends State<ShopPage> {
     }
   }
 
+/////////////////////////////////////////////////////////////////
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +51,8 @@ class _ShopPageState extends State<ShopPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Consumer<ProductProvider>(  // Consumer listens to changes in ProductProvider
+        child: Consumer<
+            ProductProvider>( // Consumer listens to changes in ProductProvider
           builder: (context, productProvider, child) {
             productProvider.fetchProducts();
             return GridView.builder(
@@ -82,7 +87,8 @@ class _ShopPageState extends State<ShopPage> {
                                 return const Icon(Icons.broken_image, size: 50);
                               },
                             )
-                                : const Icon(Icons.image, size: 50), // Placeholder if no image
+                                : const Icon(Icons.image,
+                                size: 50), // Placeholder if no image
                           ),
                         ),
                       ),
@@ -123,22 +129,146 @@ class _ShopPageState extends State<ShopPage> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // Show dialog to create a new product
-          showDialog(
-            context: context,
-            builder: (context) => ProductCreateDialog(),
-          );
-        },
-        label: const Text('Add Product'),
-        icon: const Icon(Icons.add),
+      backgroundColor: Color(0xFF4B4376),
+      floatingActionButton: Stack(
+        children: [
+          // Existing "Add Product" button
+          Positioned(
+            bottom: 70,
+            right: 10,
+            child: FloatingActionButton.extended(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => ProductCreateDialog(),
+                );
+              },
+              label: const Text('Add Product'),
+              icon: const Icon(Icons.add),
+            ),
+          ),
+          // New "Create Case" button
+          Positioned(
+            bottom: 10,
+            right: 10,
+            child: FloatingActionButton.extended(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => CreateRandomCaseDialog(),
+                );
+              },
+              label: const Text('Create Case'),
+              icon: const Icon(Icons.casino),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
+class OpenCaseDialog extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Surprise Box!'),
+      content: Consumer<ProductProvider>(
+        builder: (context, productProvider, child) {
+          final randomProduct = productProvider.createRandomCase();
 
-// ProductCreateDialog and the rest of the code remains unchanged
+          if (randomProduct == null) {
+            return const Text("No products available.");
+          } else {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("You got: ${randomProduct.name}"),
+                Image.file(
+                  File(randomProduct.imageUrl),
+                  width: 100,
+                  height: 100,
+                ),
+                Text("\$${randomProduct.price}"),
+              ],
+            );
+          }
+        },
+      ),
+      actions: [
+
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Close'),
+        ),
+      ],
+    );
+  }
+}
+
+class CreateRandomCaseDialog extends StatefulWidget {
+  @override
+  _CreateRandomCaseDialogState createState() => _CreateRandomCaseDialogState();
+}
+
+class _CreateRandomCaseDialogState extends State<CreateRandomCaseDialog> {
+  List<Product> _selectedProducts = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Create Random Case'),
+      content: Consumer<ProductProvider>(
+        builder: (context, productProvider, child) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Display a list of available products to select
+              for (var product in productProvider.products)
+                CheckboxListTile(
+                  title: Text(product.name),
+                  value: _selectedProducts.contains(product),
+                  onChanged: (isChecked) {
+                    setState(() {
+                      if (isChecked == true) {
+                        _selectedProducts.add(product);
+                      } else {
+                        _selectedProducts.remove(product);
+                      }
+                    });
+                  },
+                ),
+            ],
+          );
+        },
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            if (_selectedProducts.isNotEmpty) {
+              Provider.of<ProductProvider>(context, listen: false)
+                  .createRandomCase(_selectedProducts);
+              Navigator.of(context).pop();
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Please select at least one product')),
+              );
+            }
+          },
+          child: const Text('Create Case'),
+        ),
+      ],
+    );
+  }
+}
+
 
 class ProductCreateDialog extends StatefulWidget {
   @override
@@ -148,6 +278,7 @@ class ProductCreateDialog extends StatefulWidget {
 class _ProductCreateDialogState extends State<ProductCreateDialog> {
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
+  final _formKey = GlobalKey<FormState>(); // Key for the form validation
   File? _image; // Store the selected image file
   final ImagePicker _picker = ImagePicker(); // ImagePicker instance
 
@@ -168,36 +299,62 @@ class _ProductCreateDialogState extends State<ProductCreateDialog> {
     }
   }
 
+  // Validate the form fields
+  bool _validateFields() {
+    return _formKey.currentState?.validate() ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Create Product'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: _nameController,
-            decoration: const InputDecoration(labelText: 'Product Name'),
-          ),
-          TextField(
-            controller: _priceController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Price'),
-          ),
-          // Button to trigger image picking
-          ElevatedButton(
-            onPressed: _pickImage,
-            child: const Text('Pick Image'),
-          ),
-          // Show the selected image (if any)
-          if (_image != null)
-            Image.file(
-              _image!,
-              height: 100,
-              width: 100,
-              fit: BoxFit.cover,
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextFormField(
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: 'Product Name'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Product name is required';
+                } else if (value.length < 5 || value.length > 30) {
+                  return 'Name must be between 5 and 30 characters';
+                } else if (RegExp(r'^[0-9]+$').hasMatch(value)) {
+                  return 'Name should not contain numbers';
+                }
+                return null; // If valid
+              },
             ),
-        ],
+            TextFormField(
+              controller: _priceController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Price'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Price is required';
+                } else if (double.tryParse(value) == null) {
+                  return 'Price must be a valid number';
+                }
+                return null; // If valid
+              },
+            ),
+            // Button to trigger image picking
+            ElevatedButton(
+              onPressed: _pickImage,
+              child: const Text('Pick Image'),
+            ),
+            // Show the selected image (if any)
+            if (_image != null)
+              Image.file(
+                _image!,
+                height: 100,
+                width: 100,
+                fit: BoxFit.cover,
+              ),
+          ],
+        ),
       ),
       actions: [
         TextButton(
@@ -208,15 +365,22 @@ class _ProductCreateDialogState extends State<ProductCreateDialog> {
         ),
         TextButton(
           onPressed: () {
-            final product = Product(
-              id: DateTime.now().toString(),
-              name: _nameController.text,
-              price: double.tryParse(_priceController.text) ?? 0.0,
-              imageUrl: _image?.path ?? '', // Use the selected image path
-            );
+            if (_validateFields()) {
+              final product = Product(
+                id: DateTime.now().toString(),
+                name: _nameController.text,
+                price: double.tryParse(_priceController.text) ?? 0.0,
+                imageUrl: _image?.path ?? '', // Use the selected image path
+              );
 
-            Provider.of<ProductProvider>(context, listen: false).addProduct(product);
-            Navigator.of(context).pop();
+              Provider.of<ProductProvider>(context, listen: false).addProduct(product);
+              Navigator.of(context).pop();
+            } else {
+              // If validation fails, just show the error messages
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Please fix the errors above')),
+              );
+            }
           },
           child: const Text('Create'),
         ),
@@ -224,3 +388,4 @@ class _ProductCreateDialogState extends State<ProductCreateDialog> {
     );
   }
 }
+

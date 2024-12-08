@@ -5,7 +5,6 @@ import 'product.dart'; // Your product model file
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'CartPage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class FrontShopPage extends StatefulWidget {
   const FrontShopPage({Key? key}) : super(key: key);
@@ -15,14 +14,9 @@ class FrontShopPage extends StatefulWidget {
 }
 
 class _FrontShopState extends State<FrontShopPage> {
-  late String ID;
-  // Fetch products when the page loads
-  @override
-  void initState() {
-    super.initState();
-    // Fetch the products from the backend when the page loads
-    Provider.of<ProductProvider>(context, listen: false).fetchProducts();
-  }
+  TextEditingController _searchController = TextEditingController();
+  double _minPrice = 0;
+  double _maxPrice = 100; // Set a max price initially
 
   // Function to handle image uploading
   Future<void> _uploadImage(BuildContext context, Product product) async {
@@ -30,16 +24,28 @@ class _FrontShopState extends State<FrontShopPage> {
     final XFile? pickedImage = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedImage != null) {
-      // Update the product's imageUrl with the selected image path
       setState(() {
         product.imageUrl = pickedImage.path;
       });
-
-      // Notify the ProductProvider to rebuild the UI
       Provider.of<ProductProvider>(context, listen: false).addProduct(product);
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    // Fetch the products when the page loads
+    Provider.of<ProductProvider>(context, listen: false).fetchProducts();
+  }
+
+  // Function to handle search and price filtering
+  void _filterProducts() {
+    Provider.of<ProductProvider>(context, listen: false).filterProducts(
+      _searchController.text,
+      _minPrice,
+      _maxPrice,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,80 +64,159 @@ class _FrontShopState extends State<FrontShopPage> {
           ),
         ],
       ),
+
+      backgroundColor: const Color(0xFF4B4376),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Consumer<ProductProvider>(  // Consumer listens to changes in ProductProvider
-          builder: (context, productProvider, child) {
-            // Fetch products each time the Consumer is built
-            productProvider.fetchProducts();
-            return GridView.builder(
-              itemCount: productProvider.products.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 0.7,
-              ),
-              itemBuilder: (context, index) {
-                final product = productProvider.products[index];
-                return Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Search and Price Filter Row
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        labelText: 'Search by Name',
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onChanged: (value) {
+                        _filterProducts(); // Trigger filter when search changes
+                      },
+                    ),
                   ),
-                  elevation: 4,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => _uploadImage(context, product),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: product.imageUrl.isNotEmpty
-                                ? Image.file(
-                              File(product.imageUrl),
+                ),
+                // Price Range Filter
+                Column(
+                  children: [
+                    const Text(
+                      'Price Range',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    // Display the current price range above the slider
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(
+                        '\$${_minPrice.toStringAsFixed(0)} - \$${_maxPrice.toStringAsFixed(0)}',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    RangeSlider(
+                      values: RangeValues(_minPrice, _maxPrice),
+                      min: 0,
+                      max: 1000, // Set to 1000 as your requested max price
+                      divisions: 100, // Optional: to show divisions for better precision
+                      activeColor: Colors.blue, // Slider track color and thumb color
+                      inactiveColor: Colors.blue.withOpacity(0.3), // Inactive track color
+                      onChanged: (RangeValues values) {
+                        setState(() {
+                          _minPrice = values.start;
+                          _maxPrice = values.end;
+                        });
+                        _filterProducts(); // Trigger filter when price changes
+                      },
+                    )
 
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(Icons.broken_image, size: 50);
 
-                              },
-                            )
-                                : const Icon(Icons.image, size: 50), // Placeholder if no image
-                          ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            // Displaying products after filtering
+            Consumer<ProductProvider>(
+              builder: (context, productProvider, child) {
+                return Expanded(
+                  child: GridView.builder(
+                    itemCount: productProvider.filteredProducts.length,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 0.7,
+                    ),
+                    itemBuilder: (context, index) {
+                      final product = productProvider.filteredProducts[index];
+                      return Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          product.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16.0,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        elevation: 4,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => _uploadImage(context, product),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: product.imageUrl.isNotEmpty
+                                      ? Image.file(
+                                    File(product.imageUrl),
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Icon(Icons.broken_image, size: 50);
+                                    },
+                                  )
+                                      : const Icon(Icons.image, size: 50),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                product.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Text(
+                                '\$${product.price}',
+                                style: const TextStyle(
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.green,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  // Add item to cart
+                                  Provider.of<ProductProvider>(context, listen: false)
+                                      .addToCart(product);
+                                },
+                                child: const Text('Add to Cart'),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ElevatedButton(
-                          onPressed: () {
-print("prod that should be added to cart "+product.id.toString());
-                            // Add item to cart
-                            Provider.of<ProductProvider>(context, listen: false)
-                                .addToCart(product); // Implement this method in your ProductProvider
-                          },
-                          child: const Text('Add to Cart'),
-                        ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 );
               },
-            );
-          },
+            ),
+          ],
         ),
       ),
     );

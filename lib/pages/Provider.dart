@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'product.dart';
 import 'package:http/http.dart' as http;
@@ -6,11 +8,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductProvider with ChangeNotifier {
   List<Product> _products = [];
+  List<Product> _filteredProducts = [];
   List<Product> _cartItems = [];
   List<Product> get products => _products;
+  List<Product> get filteredProducts => _filteredProducts;
   List<Product> get cartItems => _cartItems;
-  // Add a product to both local state and the backend
+  List<Product> _cases = []; // List to store all created cases
 
+
+  // Getter for cases
+  List<Product> get cases => _cases;
+
+  // Add a product to both local state and the backend
   Future<void> addToCart(Product product) async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -25,12 +34,9 @@ class ProductProvider with ChangeNotifier {
         body: json.encode({
           "userId": prefs.getString('user_id'),
           "productId": product.id,
-          "quantity": 1  // Explicitly add quantity here
+          "quantity": 1, // Explicitly add quantity here
         }),
       );
-
-      print("the user id is " + prefs.getString('user_id').toString());
-      print("the prod id is " + product.id.toString());
 
       if (response.statusCode == 200) {
         // If the product is added to the cart successfully
@@ -47,10 +53,7 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
   }
 
-
-
   Future<void> addProduct(Product product) async {
-    print("aaa " + product.name);
     try {
       final url = Uri.parse('http://10.0.2.2:9090/api/products/'); // Update with your API URL
 
@@ -80,6 +83,7 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
+
   // Remove a product both locally and from the backend
   Future<void> removeProduct(String id) async {
     try {
@@ -99,30 +103,55 @@ class ProductProvider with ChangeNotifier {
       print('Error removing product: $e');
     }
   }
-  Future<void> fetchProducts() async {
 
+  // Fetch products from the API
+  // Fetch products from the API
+  Future<void> fetchProducts() async {
     try {
       final url = Uri.parse('http://10.0.2.2:9090/api/products'); // Update with your API URL
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
         final List<dynamic> productData = json.decode(response.body);
-        print("im fetching ");
-
-        // Parse each item in the productData list to a Product object
         _products = productData.map((data) => Product.fromJson(data)).toList();
-
-
-       // print('Products loaded successfully: ${_products[3].name}');
+        _filteredProducts = List.from(_products); // Initialize filtered list with all products
+        notifyListeners();
       } else {
         print('Failed to load products');
       }
     } catch (e) {
       print('Error fetching products: $e');
-
     }
+  }void filterProducts(String searchTerm, double minPrice, double maxPrice) {
+    print('Filtering with search term: $searchTerm, Price range: \$${minPrice} - \$${maxPrice}'); // Debugging line
+
+    if (searchTerm.isEmpty && minPrice == 0 && maxPrice == 100) {
+      // If no filter is applied, reset to all products
+      _filteredProducts = List.from(_products);
+    } else {
+      _filteredProducts = _products.where((product) {
+        final matchesSearchTerm = product.name.toLowerCase().contains(searchTerm.toLowerCase());
+        final matchesPriceRange = product.price >= minPrice && product.price <= maxPrice;
+
+        // Log the matches to check the filtering logic
+        print('Checking product: ${product.name}');
+        print('Matches search: $matchesSearchTerm, Matches price range: $matchesPriceRange');
+
+        return matchesSearchTerm && matchesPriceRange;
+      }).toList();
+    }
+
+    print('Filtered products count: ${_filteredProducts.length}'); // Debugging line to show the filtered list length
+    notifyListeners();
+  }// Method to create a case with selected products
+  Product? createRandomCase(List<Product> selectedProducts) {
+    if (_products.isNotEmpty) {
+      final randomProduct = _products[Random().nextInt(_products.length)];
+      return randomProduct;
+    }
+    return null;
   }
 
-// Optionally, you can add a method to save products locally, such as in SharedPreferences,
-// so they persist across app restarts. However, fetching from the API every time is an easy option.
+
 }
+
