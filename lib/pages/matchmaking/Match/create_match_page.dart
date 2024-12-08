@@ -30,13 +30,40 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
 
   // Fetch all teams for the dropdown
   void fetchTeams() async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
-      final fetchedTeams = await teamService.getTeams();
+      List<Team> fetchedTeams = [];
+
+      try {
+        // Fetch teams from the backend
+        fetchedTeams = await teamService.getTeams();
+
+        // Check for unexpected data structures
+        for (var team in fetchedTeams) {
+          if (team.id.isEmpty) {
+            debugPrint("Team with missing ID: $team");
+          }
+          if (team.name != null && team.name is! String) {
+            debugPrint("Unexpected type for team name: ${team.name.runtimeType}");
+          }
+          if (team.logo != null && team.logo is! String) {
+            debugPrint("Unexpected type for team logo: ${team.logo.runtimeType}");
+          }
+        }
+      } catch (e) {
+        debugPrint("Error fetching teams from the service: $e");
+        throw Exception("Error fetching teams from the service: $e");
+      }
+
       setState(() {
         teams = fetchedTeams;
         isLoading = false;
       });
     } catch (e) {
+      debugPrint("Error in fetchTeams method: $e");
       setState(() {
         isLoading = false;
       });
@@ -45,6 +72,7 @@ class _CreateMatchPageState extends State<CreateMatchPage> {
       );
     }
   }
+
 
   // Pick date and time
   Future<void> pickDateTime() async {

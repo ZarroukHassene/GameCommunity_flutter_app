@@ -32,4 +32,5 @@ router.route('/:id')
     )
     .delete(deleteMatch); // Delete a match
 
-export default router;
+
+    export default router;

@@ -38,7 +38,6 @@ class MatchService {
     }
   }
 
-  // Delete a match
   Future<void> deleteMatch(String matchId) async {
     final url = Uri.parse('$baseUrl/match/$matchId');
     final response = await http.delete(url);

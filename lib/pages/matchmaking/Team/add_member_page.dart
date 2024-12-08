@@ -5,6 +5,8 @@ import 'package:gamefan_app/entities/user.dart';
 import 'package:gamefan_app/pages/matchmaking/Team/TeamService.dart';
 import 'package:gamefan_app/pages/user/user_service.dart';
 
+import '../../../entities/Team.dart';
+
 class AddMemberPage extends StatefulWidget {
   final String teamId;
 
@@ -31,25 +33,66 @@ class _AddMemberPageState extends State<AddMemberPage> {
 
   // Fetch users and team members
   void fetchUsersAndMembers() async {
-    try {
-      final fetchedUsers = await userService.getUsers(); // Get all users
-      final fetchedTeam = await teamService.getTeamById(widget.teamId); // Get team details
+    setState(() {
+      isLoading = true;
+    });
 
-      // Parse members as User objects
-      List<User> membersDetails = [];
-      for (var memberId in fetchedTeam.memberIds) {
-        final member = await userService.getUserById(memberId); // Fetch each user's details
-        membersDetails.add(member);
+    try {
+      // Fetch users
+      List<User> fetchedUsers = [];
+      try {
+        fetchedUsers = await userService.getUsers();
+        if (fetchedUsers.isEmpty) {
+          debugPrint("No users found.");
+        }
+      } catch (e) {
+        debugPrint("Error fetching users: $e");
+        throw Exception("Error fetching users: $e");
       }
 
+      // Fetch team details
+      Team? fetchedTeam;
+      try {
+        fetchedTeam = await teamService.getTeamById(widget.teamId);
+        if (fetchedTeam == null) {
+          debugPrint("Team not found.");
+          throw Exception("Team not found.");
+        }
+      } catch (e) {
+        debugPrint("Error fetching team: $e");
+        throw Exception("Error fetching team: $e");
+      }
+
+      // Parse members
+      List<User> membersDetails = [];
+      try {
+        for (var memberId in fetchedTeam.memberIds) {
+          try {
+            final member = await userService.getUserById(memberId);
+            if (member == null) {
+              debugPrint("Member with ID $memberId not found.");
+            } else {
+              membersDetails.add(member);
+            }
+          } catch (e) {
+            debugPrint("Error fetching member with ID $memberId: $e");
+          }
+        }
+      } catch (e) {
+        debugPrint("Error parsing team members: $e");
+        throw Exception("Error parsing team members: $e");
+      }
+
+      // Update state
       setState(() {
-        teamMembers = membersDetails; // Existing team members
+        teamMembers = membersDetails;
         users = fetchedUsers
-            .where((user) => !fetchedTeam.memberIds.contains(user.id.toString()))
-            .toList(); // Filter out existing team members
+            .where((user) => !fetchedTeam!.memberIds.contains(user.id.toString()))
+            .toList();
         isLoading = false;
       });
     } catch (e) {
+      debugPrint("Error in fetchUsersAndMembers: $e");
       setState(() {
         isLoading = false;
       });
@@ -58,6 +101,7 @@ class _AddMemberPageState extends State<AddMemberPage> {
       );
     }
   }
+
 
   // Add a member to the team
   void addMember() async {

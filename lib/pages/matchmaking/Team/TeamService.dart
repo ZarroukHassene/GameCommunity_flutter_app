@@ -36,7 +36,7 @@ class TeamService {
       final List<dynamic> data = jsonDecode(response.body);
       return data.map((teamJson) => Team.fromJson(teamJson)).toList();
     } else {
-      throw Exception("Failed to load teams: ${response.statusCode}");
+      throw Exception("Failed to load teamsAAAAAAA: ${response.statusCode}");
     }
   }
 
