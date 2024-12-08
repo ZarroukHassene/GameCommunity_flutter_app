@@ -7,6 +7,7 @@ import 'package:gamefan_app/pages/user/ProfilePage.dart';
 import 'package:gamefan_app/pages/user/SignInPage.dart';
 import '../entities/user.dart';
 import 'ShopPage.dart';
+import 'matchmaking/Match/view_matches_pageFRONT.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -201,13 +202,18 @@ class _HomePageState extends State<HomePage> {
               context,
               icon: Icons.sports_esports,
               label: 'Matches',
-              onTap: () {},
+              onTap: () {Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ViewMatchesPageFRONT()),
+              );},
             ),
             _buildGridButton(
               context,
               icon: Icons.help,
               label: 'Assistance',
-              onTap: () {},
+              onTap: () {
+
+              },
             ),
           ],
         ),

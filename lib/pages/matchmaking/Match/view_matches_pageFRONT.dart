@@ -6,14 +6,14 @@ import 'package:gamefan_app/entities/Team.dart';
 import 'match_page.dart';
 import 'create_match_page.dart'; // Import the CreateMatchPage
 
-class ViewMatchesPage extends StatefulWidget {
-  const ViewMatchesPage({Key? key}) : super(key: key);
+class ViewMatchesPageFRONT extends StatefulWidget {
+  const ViewMatchesPageFRONT({Key? key}) : super(key: key);
 
   @override
-  State<ViewMatchesPage> createState() => _ViewMatchesPageState();
+  State<ViewMatchesPageFRONT> createState() => _ViewMatchesPageState();
 }
 
-class _ViewMatchesPageState extends State<ViewMatchesPage> {
+class _ViewMatchesPageState extends State<ViewMatchesPageFRONT> {
   final MatchService matchService = MatchService();
   List<Match> matches = [];
   bool isLoading = true;
@@ -69,22 +69,7 @@ class _ViewMatchesPageState extends State<ViewMatchesPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Navigate to CreateMatchPage
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const CreateMatchPage(),
-            ),
-          ).then((value) {
-            // Refresh the matches list when returning from CreateMatchPage
-            fetchMatches();
-          });
-        },
-        child: const Icon(Icons.add),
-        tooltip: "Create a New Match",
-      ),
+
     );
   }
 
@@ -125,68 +110,11 @@ class _ViewMatchesPageState extends State<ViewMatchesPage> {
                 _buildTeamInfo(match.teamB),
               ],
             ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerRight,
-              child: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                tooltip: "Delete Match",
-                onPressed: () => _confirmDelete(match.id),
-              ),
-            ),
           ],
         ),
       ),
     );
   }
-  void _confirmDelete(String matchId) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Confirm Deletion"),
-        content: const Text("Are you sure you want to delete this match?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context), // Close the dialog
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context); // Close the dialog
-              await _deleteMatch(matchId); // Execute the delete
-            },
-            child: const Text("Delete"),
-          ),
-        ],
-      ),
-    );
-  }
-  Future<void> _deleteMatch(String matchId) async {
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      await matchService.deleteMatch(matchId);
-      setState(() {
-        matches.removeWhere((match) => match.id == matchId); // Remove match from list
-        isLoading = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Match deleted successfully!")),
-      );
-    } catch (e) {
-      debugPrint("Error deleting match: $e");
-      setState(() {
-        isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to delete match: $e")),
-      );
-    }
-  }
-
 
   Widget _buildTeamInfo(Team team) {
     return Column(
