@@ -138,6 +138,86 @@ class _AddMemberPageState extends State<AddMemberPage> {
     }
   }
 
+  // Remove a member from the team
+  Future<void> removeMember(String userId) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final url = Uri.parse('${teamService.baseUrl}/team/removeMember');
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "teamId": widget.teamId,
+          "userId": userId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          // Find the removed member if it exists
+          final removedUser = teamMembers.firstWhere(
+                (member) => member.id == userId,
+            orElse: () => User(
+              id: '',
+              username: 'Unknown',
+              email: '',
+              role: 'player',
+            ), // Provide a default User object instead of null
+          );
+
+          // Remove the member from teamMembers
+          teamMembers.removeWhere((member) => member.id == userId);
+
+          // Add back to available users if the user exists
+          if (removedUser.id.isNotEmpty) {
+            users.add(removedUser);
+          }
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Member removed successfully!")),
+        );
+      } else {
+        throw Exception("Failed to remove member: ${response.body}");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to remove member: $e")),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void _confirmRemoveMember(String userId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Remove Member"),
+        content: const Text("Are you sure you want to remove this member from the team?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context), // Close the dialog
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context); // Close the dialog
+              await removeMember(userId); // Remove the member
+            },
+            child: const Text("Remove"),
+          ),
+        ],
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -168,9 +248,14 @@ class _AddMemberPageState extends State<AddMemberPage> {
                     child: Text(member.username[0].toUpperCase()),
                   ),
                   title: Text(member.username),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _confirmRemoveMember(member.id),
+                  ),
                 );
               },
             ),
+
             const SizedBox(height: 24),
             DropdownButton<User>(
               value: selectedUser,
@@ -182,17 +267,30 @@ class _AddMemberPageState extends State<AddMemberPage> {
                   child: Text(user.username),
                 );
               }).toList(),
-              onChanged: (User? value) {
+              onChanged: teamMembers.length >= 5
+                  ? null // Disable selection if the limit is reached
+                  : (User? value) {
                 setState(() {
                   selectedUser = value;
                 });
               },
             ),
+
             const SizedBox(height: 16),
+
             ElevatedButton(
-              onPressed: addMember,
+              onPressed: teamMembers.length >= 5
+                  ? null // Disable the button if the limit is reached
+                  : addMember,
               child: const Text("Add Member"),
             ),
+
+            const SizedBox(height: 8),
+            if (teamMembers.length >= 5)
+              const Text(
+                "Team member limit reached (5 members).",
+                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
           ],
         ),
       ),
